@@ -75,7 +75,7 @@ import {
         {/* Contenido principal */}
         <Box flex="1" ml={isOpen ? '240px' : '60px'} transition="margin-left 0.3s">
             {/* Barra superior */}
-            <Navbar onMenuClick={onToggle} />
+            <Navbar onMenuClick={onToggle} userName={''} />
             <Box p={6}>
             {/* Bienvenida */}
             <Box mb={8}>

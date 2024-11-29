@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { Layout } from '../components/layout/Layout';
 
 // Pages
@@ -34,6 +33,7 @@ import ProductDetails from '../pages/ProductDetails';
 import CashClosing from '../pages/CashClosing';
 import CashOpening from '../pages/CashOpening';
 import ProductModal from '../components/products/ProductModal';
+import { Product } from '../services/api';
 
 
 
@@ -62,7 +62,9 @@ export const AppRoutes = () => {
     <ProductModal
       isOpen={true} // Aquí decides si el modal estará abierto inicialmente
       onClose={() => console.log('Cerrar modal')} // Una función para manejar el cierre
-    />
+      onProductCreated={function (_product: Product): void {
+        throw new Error('Function not implemented.');
+      } }    />
   }
 />
 
