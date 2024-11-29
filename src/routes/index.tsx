@@ -6,7 +6,6 @@ import { Login } from '../pages/auth/Login';
 import { Register } from '../pages/Register';
 import { Dashboard } from '../pages/Dashboard';
 import { POS } from '../pages/POS';
-import { Products } from '../pages/Products';
 import { Sales } from '../pages/Sales';
 import TopSellingProducts from '../pages/TopSellingProducts';
 import HourlySales from '../pages/HourlySales';
@@ -105,7 +104,7 @@ export const AppRoutes = () => {
         }
       >
         
-        <Route path="/products" element={<Products />} />
+        
         <Route path="/sales" element={<Sales />} />
         
       </Route>

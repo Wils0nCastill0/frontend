@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -12,8 +12,15 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
+// Define la estructura del producto
+interface Product {
+  id: string; // Asegúrate de que 'id' sea el tipo correcto según el backend
+  name: string;
+  price: number;
+}
+
 export const Products = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]); // Ahora es un array de productos
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const toast = useToast();
@@ -28,7 +35,7 @@ export const Products = () => {
       const response = await fetch('http://localhost:3009/api/products', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await response.json();
+      const data: Product[] = await response.json(); // Define explícitamente el tipo de datos
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -47,10 +54,10 @@ export const Products = () => {
         body: JSON.stringify({ name, price: parseFloat(price) }),
       });
       if (response.ok) {
-        toast({ title: 'Product added', status: 'success' });
+        toast({ title: 'Producto agregado', status: 'success' });
         fetchProducts();
       } else {
-        toast({ title: 'Failed to add product', status: 'error' });
+        toast({ title: 'No se pudo agregar el producto', status: 'error' });
       }
     } catch (error) {
       console.error('Error adding product:', error);
@@ -60,29 +67,33 @@ export const Products = () => {
   return (
     <Box>
       <Input
-        placeholder="Product Name"
+        placeholder="Nombre del Producto"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        mb={2}
       />
       <Input
-        placeholder="Price"
+        placeholder="Precio"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
+        mb={2}
       />
-      <Button onClick={addProduct}>Add Product</Button>
+      <Button onClick={addProduct} mb={4}>
+        Agregar Producto
+      </Button>
 
       <Table>
         <Thead>
           <Tr>
-            <Th>Name</Th>
-            <Th>Price</Th>
+            <Th>Nombre</Th>
+            <Th>Precio</Th>
           </Tr>
         </Thead>
         <Tbody>
           {products.map((product) => (
             <Tr key={product.id}>
               <Td>{product.name}</Td>
-              <Td>{product.price}</Td>
+              <Td>${product.price.toFixed(2)}</Td>
             </Tr>
           ))}
         </Tbody>

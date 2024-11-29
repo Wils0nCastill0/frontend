@@ -37,7 +37,7 @@ import {
         { name: 'Home', icon: Home, path: '/home' },
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
         { name: 'POS', icon: ShoppingCart, path: '/pos' },
-        { name: 'Productos', icon: Package, path: '/products' },
+        { name: 'Productos', icon: Package, path: '/inventory' },
         { name: 'Ventas', icon: LineChart, path: '/sales' },
         { name: 'Clientes', icon: Users, path: '/clients' },
         { name: 'Usuarios', icon: Users, path: '/users-permissions', roles: ['admin'] },

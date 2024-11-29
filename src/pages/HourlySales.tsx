@@ -60,7 +60,7 @@ const mockTableData = [
 
 const HourlySales: React.FC = () => {
   const { isOpen, onToggle } = useDisclosure();
-  const [userName, setUserName] = useState<string>('Usuario de Prueba'); // Estado para el nombre del usuario
+  const [userName] = useState<string>('Usuario de Prueba'); // Estado para el nombre del usuario
 
   return (
     <Flex height="100vh">
