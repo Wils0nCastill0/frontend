@@ -1,208 +1,167 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-    Box,
-    Flex,
-    Heading,
-    Input,
-    Select,
-    Button,
-    Table,
-    Thead,
-    Tbody,
-    Tr,
-    Th,
-    Td,
-    Badge,
-    Text,
-    SimpleGrid,
-    } from '@chakra-ui/react';
-    import { CollapsibleSidebar } from '../components/layout/CollapsibleSidebar';
-    import { Navbar } from '../components/layout/Navbar';
-    import { useDisclosure } from '@chakra-ui/react';
-    import { useNavigate } from 'react-router-dom';
+  Box,
+  Flex,
+  Heading,
+  Button,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  Text,
+  Spinner,
+} from '@chakra-ui/react';
+import { CollapsibleSidebar } from '../components/layout/CollapsibleSidebar';
+import { Navbar } from '../components/layout/Navbar';
+import { useDisclosure } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import ProductModal from '../components/products/ProductModal'; // Importamos el modal
+import { Product, productsApi } from '../services/api';
 
-    interface Product {
-    code: string;
-    name: string;
-    category: string;
-    stock: number;
-    price: number;
-    status: string;
-    }
+interface TransformedProduct extends Product {
+  code: string;
+  status: string;
+}
 
-    // Datos ficticios
-    const mockProducts: Product[] = [
-    { code: '001', name: 'Coca Cola 2L', category: 'Bebidas', stock: 24, price: 2500, status: 'Activo' },
-    { code: '002', name: 'Pan Integral', category: 'Panadería', stock: 5, price: 1990, status: 'Stock Bajo' },
-    ];
+const Inventory: React.FC = () => {
+  const { isOpen, onToggle } = useDisclosure();
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<TransformedProduct[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const Inventory: React.FC = () => {
-    const { isOpen, onToggle } = useDisclosure();
-    const navigate = useNavigate();
-    const [search, setSearch] = useState<string>('');
-    const [category, setCategory] = useState<string>('');
-    const [stock, setStock] = useState<string>('');
+  // Estado para el modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const filteredProducts = mockProducts.filter((product) => {
-        const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
-        const matchesCategory = category ? product.category === category : true;
-        const matchesStock =
-        stock === 'stock-bajo'
-            ? product.stock < 10
-            : stock === 'stock-alto'
-            ? product.stock >= 10
-            : true;
-        return matchesSearch && matchesCategory && matchesStock;
-    });
+  // Función para abrir el modal
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
 
-    return (
-        <Flex height="100vh">
-        {/* Barra lateral */}
-        <CollapsibleSidebar isOpen={isOpen} onToggle={onToggle} />
+  // Función para cerrar el modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
-        {/* Contenido principal */}
-        <Box flex="1" ml={isOpen ? '240px' : '60px'} transition="margin-left 0.3s">
-            {/* Barra superior */}
-            <Navbar onMenuClick={onToggle} />
-            <Box p={6}>
-            {/* Encabezado */}
-            <Flex justify="space-between" align="center" mb={6}>
-                <Heading size="lg">Inventario</Heading>
-                <Flex gap={2}>
-                <Button
-                    variant="outline"
-                    onClick={() => navigate('/mass-import')}
-                    colorScheme="blue"
-                >
-                    Importar
-                </Button>
-                <Button colorScheme="blue">Nuevo Producto</Button>
-                </Flex>
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await productsApi.getAll();
+        const transformedProducts = response.map((product) => ({
+          ...product,
+          code: product.sku, // Mapear `sku` a `code`
+          status: product.stock > 0 ? 'Activo' : 'Inactivo', // Derivar `status`
+        }));
+        setProducts(transformedProducts);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Error al cargar el inventario');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  return (
+    <Flex height="100vh">
+      <CollapsibleSidebar isOpen={isOpen} onToggle={onToggle} />
+      <Box flex="1" ml={isOpen ? '240px' : '60px'} transition="margin-left 0.3s">
+        <Navbar onMenuClick={onToggle} userName="Bruno" />
+        <Box p={6}>
+          <Flex justify="space-between" align="center" mb={6}>
+            <Heading size="lg">Inventario</Heading>
+            <Flex gap={2}>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/mass-import')}
+                colorScheme="blue"
+              >
+                Importar
+              </Button>
+              <Button colorScheme="blue" onClick={openModal}>
+                Nuevo Producto
+              </Button>
             </Flex>
-
-            {/* Alertas de Stock Bajo */}
-            <Box mb={6}>
-                <Heading size="md" mb={4}>
-                Alertas de Stock Bajo
-                </Heading>
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                <Box
-                    bg="white"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="md"
-                    p={4}
-                    textAlign="center"
-                >
-                    <Text fontSize="lg" color="gray.500" mb={2}>
-                    Productos en Alerta
-                    </Text>
-                    <Text fontSize="2xl" fontWeight="bold" color="red.500">
-                    8
-                    </Text>
-                </Box>
-                <Box
-                    bg="white"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="md"
-                    p={4}
-                    textAlign="center"
-                >
-                    <Text fontSize="lg" color="gray.500" mb={2}>
-                    Productos sin Stock
-                    </Text>
-                    <Text fontSize="2xl" fontWeight="bold" color="red.700">
-                    2
-                    </Text>
-                </Box>
-                <Box
-                    bg="white"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="md"
-                    p={4}
-                    textAlign="center"
-                >
-                    <Text fontSize="lg" color="gray.500" mb={2}>
-                    Órdenes Pendientes
-                    </Text>
-                    <Text fontSize="2xl" fontWeight="bold" color="orange.500">
-                    3
-                    </Text>
-                </Box>
-                </SimpleGrid>
+          </Flex>
+          {loading && (
+            <Box textAlign="center" mt={6}>
+              <Spinner size="xl" />
+              <Text mt={2}>Cargando inventario...</Text>
             </Box>
-
-            {/* Filtros */}
-            <Flex gap={4} mb={6}>
-                <Input
-                placeholder="Buscar productos..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                />
-                <Select
-                placeholder="Categoría"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                >
-                <option value="Bebidas">Bebidas</option>
-                <option value="Panadería">Panadería</option>
-                <option value="Lácteos">Lácteos</option>
-                </Select>
-                <Select
-                placeholder="Stock"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                >
-                <option value="stock-bajo">Stock Bajo</option>
-                <option value="stock-alto">Stock Alto</option>
-                </Select>
-            </Flex>
-
-            {/* Tabla de productos */}
-            <Box bg="white" shadow="sm" borderRadius="md" p={6} border="1px solid" borderColor="gray.200">
-                <Table variant="striped" colorScheme="gray">
+          )}
+          {error && (
+            <Box textAlign="center" mt={6} color="red.500">
+              <Text>{error}</Text>
+            </Box>
+          )}
+          {!loading && !error && (
+            <Box
+              bg="white"
+              shadow="sm"
+              borderRadius="md"
+              p={6}
+              border="1px solid"
+              borderColor="gray.200"
+            >
+              <Table variant="striped" colorScheme="gray">
                 <Thead>
-                    <Tr>
+                  <Tr>
                     <Th>CÓDIGO</Th>
                     <Th>PRODUCTO</Th>
                     <Th>CATEGORÍA</Th>
                     <Th isNumeric>STOCK</Th>
                     <Th isNumeric>PRECIO</Th>
                     <Th>ESTADO</Th>
-                    </Tr>
+                  </Tr>
                 </Thead>
                 <Tbody>
-                    {filteredProducts.map((product) => (
+                  {products.map((product) => (
                     <Tr key={product.code}>
-                        <Td>{product.code}</Td>
-                        <Td>{product.name}</Td>
-                        <Td>{product.category}</Td>
-                        <Td isNumeric color={product.stock < 10 ? 'red.500' : 'black'}>
+                      <Td>{product.code}</Td>
+                      <Td>{product.name}</Td>
+                      <Td>{product.category}</Td>
+                      <Td isNumeric color={product.stock < 10 ? 'red.500' : 'black'}>
                         {product.stock}
-                        </Td>
-                        <Td isNumeric>${product.price.toLocaleString()}</Td>
-                        <Td>
+                      </Td>
+                      <Td isNumeric>${product.price.toLocaleString()}</Td>
+                      <Td>
                         <Badge
-                            colorScheme={product.status === 'Activo' ? 'green' : 'red'}
-                            variant="subtle"
+                          colorScheme={product.status === 'Activo' ? 'green' : 'red'}
+                          variant="subtle"
                         >
-                            {product.status}
+                          {product.status}
                         </Badge>
-                        </Td>
+                      </Td>
                     </Tr>
-                    ))}
+                  ))}
                 </Tbody>
-                </Table>
-                <Text mt={4} color="gray.500" fontSize="sm">
-                Mostrando 1-10 de {filteredProducts.length} productos
-                </Text>
+              </Table>
+              <Text mt={4} color="gray.500" fontSize="sm">
+                Mostrando {products.length} productos
+              </Text>
             </Box>
-            </Box>
+          )}
         </Box>
-        </Flex>
-    );
+      </Box>
+
+      {/* Modal de Producto */}
+      <ProductModal
+  isOpen={isModalOpen}
+  onClose={closeModal}
+  onProductCreated={(newProduct) => {
+    setProducts((prev) => [...prev, { ...newProduct, code: newProduct.sku, status: 'Activo' }]);
+  }}
+/>
+
+    </Flex>
+  );
 };
 
 export default Inventory;

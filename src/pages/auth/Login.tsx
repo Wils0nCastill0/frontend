@@ -28,23 +28,30 @@ export const Login = () => {
     e.preventDefault();
 
     try {
-      dispatch(loginStart());
-      const response = await authApi.login(email, password);
+      dispatch(loginStart()); // Dispatch para iniciar el login
+      const response = await authApi.login(email, password); // Llamada al API
 
-      const { user } = response;
+      const { user, token } = response;
+
+      // Guardar el token en localStorage
+      localStorage.setItem('token', token);
+
+      // Dispatch para éxito del login
       dispatch(
         loginSuccess({
           user,
-          token: '',
+          token,
         })
       );
+
+      // Redirigir al home
       navigate('/home');
-    } catch (error: unknown) {
+    } catch (error: any) {
+      // Manejo de errores
       const errorMessage =
-        error instanceof Error && error.message
-          ? error.message
-          : 'Error al iniciar sesión';
-      dispatch(loginFailure(errorMessage));
+        error.response?.data?.message || error.message || 'Error al iniciar sesión';
+
+      dispatch(loginFailure(errorMessage)); // Dispatch para error
       toast({
         title: 'Error al iniciar sesión',
         description: errorMessage,

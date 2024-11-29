@@ -36,7 +36,7 @@ import {
         title: 'Usuarios',
         description: 'Administra usuarios y permisos',
         icon: Users,
-        path: '/register', // Ruta para redirigir
+        path: '/users-permissions', // Ruta para redirigir
         },
         {
         title: 'Configuración',

@@ -15,9 +15,15 @@ interface UpdateUserData {
 }
 
 export const userApi = {
-    getAll: async (): Promise<User[]> => {
-        const response = await api.get<ApiResponse<{ users: User[] }>>('/users');
-        return response.data.data.users || [];
+    getAll: async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+      
+      console.log('Token en getAll:', token); // Debug
+      const response = await api.get('/users');
+      return response.data.data.users;
     },
 
     getById: async (id: string): Promise<User> => {
