@@ -34,7 +34,7 @@ import {
     }
     
     const NavItems: NavItem[] = [
-        { name: 'Home', icon: Home, path: '/' },
+        { name: 'Home', icon: Home, path: '/home' },
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
         { name: 'POS', icon: ShoppingCart, path: '/pos' },
         { name: 'Productos', icon: Package, path: '/products' },
