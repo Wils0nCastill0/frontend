@@ -123,7 +123,11 @@ const Inventory: React.FC = () => {
                 </Thead>
                 <Tbody>
                   {products.map((product) => (
-                    <Tr key={product.code}>
+                    <Tr key={product.code}
+                        onClick={() => navigate(`/products/${product.code}`)} // Redirige al detalle
+                        cursor="pointer"
+                        _hover={{ bg: 'gray.100' }}
+                        >
                       <Td>{product.code}</Td>
                       <Td>{product.name}</Td>
                       <Td>{product.category}</Td>

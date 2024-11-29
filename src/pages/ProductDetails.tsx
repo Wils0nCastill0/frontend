@@ -1,160 +1,89 @@
+import { useEffect, useState } from 'react';
 import {
-    Box,
-    Flex,
-    Heading,
-    Text,
-    SimpleGrid,
-    Badge,
-    Button,
-    Table,
-    Thead,
-    Tbody,
-    Tr,
-    Th,
-    Td,
-  } from '@chakra-ui/react';
-  import { Line } from 'react-chartjs-2';
-  
-  const ProductDetails = () => {
-    const product = {
-      name: 'Coca Cola 2L',
-      code: '001',
-      barcode: '7801234567890',
-      status: 'Activo',
-      category: 'Bebidas',
-      brand: 'Coca Cola',
-      purchasePrice: 1800,
-      salePrice: 2500,
-      margin: '28%',
-      stock: 24,
-      minStock: 20,
-      lastRestock: '25/11/2024',
-      salesData: [10, 20, 15, 25, 30, 40],
-      movements: [
-        { date: '27/11/24', type: 'Venta', quantity: -2 },
-      ],
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Spinner,
+  Badge,
+  Button,
+} from '@chakra-ui/react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { productsApi } from '../services/api';
+import { Product } from '../types';
+
+const ProductDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>(); // ID del producto desde la URL
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await productsApi.getById(id as string);
+        setProduct(response);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Error al cargar el producto');
+      } finally {
+        setLoading(false);
+      }
     };
-  
-    const salesChartData = {
-      labels: ['Día 1', 'Día 2', 'Día 3', 'Día 4', 'Día 5', 'Día 6'],
-      datasets: [
-        {
-          label: 'Ventas',
-          data: product.salesData,
-          borderColor: 'blue',
-          fill: false,
-        },
-      ],
-    };
-  
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
     return (
-      <Box p={6}>
-        <Flex justify="space-between" align="center" mb={6}>
-          <Heading size="lg">Detalle de Producto</Heading>
-          <Flex gap={2}>
-            <Button colorScheme="blue">Editar</Button>
-            <Button colorScheme="red">Eliminar</Button>
-          </Flex>
-        </Flex>
-  
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={6}>
-          <Box
-            bg="white"
-            shadow="sm"
-            borderRadius="md"
-            p={6}
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Heading size="md" mb={4}>
-              {product.name}
-            </Heading>
-            <Text>Código: {product.code}</Text>
-            <Text>Barras: {product.barcode}</Text>
-            <Badge colorScheme="green">{product.status}</Badge>
-            <Text>Categoría: {product.category}</Text>
-            <Text>Marca: {product.brand}</Text>
-          </Box>
-          <Box
-            bg="white"
-            shadow="sm"
-            borderRadius="md"
-            p={6}
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Heading size="md" mb={4}>
-              Stock
-            </Heading>
-            <Text>Stock Actual: {product.stock}</Text>
-            <Text>Stock Mínimo: {product.minStock}</Text>
-            <Text>Última Reposición: {product.lastRestock}</Text>
-          </Box>
-          <Box
-            bg="white"
-            shadow="sm"
-            borderRadius="md"
-            p={6}
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Heading size="md" mb={4}>
-              Precios
-            </Heading>
-            <Text>Precio de Compra: ${product.purchasePrice}</Text>
-            <Text>Precio de Venta: ${product.salePrice}</Text>
-            <Text>Margen: {product.margin}</Text>
-          </Box>
-        </SimpleGrid>
-  
-        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-          <Box
-            bg="white"
-            shadow="sm"
-            borderRadius="md"
-            p={6}
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Heading size="md" mb={4}>
-              Análisis de Ventas
-            </Heading>
-            <Line data={salesChartData} />
-          </Box>
-          <Box
-            bg="white"
-            shadow="sm"
-            borderRadius="md"
-            p={6}
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Heading size="md" mb={4}>
-              Movimientos
-            </Heading>
-            <Table size="sm">
-              <Thead>
-                <Tr>
-                  <Th>Fecha</Th>
-                  <Th>Tipo</Th>
-                  <Th isNumeric>Cantidad</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {product.movements.map((movement, index) => (
-                  <Tr key={index}>
-                    <Td>{movement.date}</Td>
-                    <Td>{movement.type}</Td>
-                    <Td isNumeric>{movement.quantity}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </Box>
-        </SimpleGrid>
+      <Box textAlign="center" mt={6}>
+        <Spinner size="xl" />
+        <Text mt={2}>Cargando producto...</Text>
       </Box>
     );
-  };
-  
-  export default ProductDetails;
-  
+  }
+
+  if (error) {
+    return (
+      <Box textAlign="center" mt={6} color="red.500">
+        <Text>{error}</Text>
+        <Button mt={4} onClick={() => navigate('/inventory')}>
+          Volver al Inventario
+        </Button>
+      </Box>
+    );
+  }
+
+  return (
+    <Flex direction="column" p={6}>
+      <Heading size="lg" mb={6}>
+        Detalles del Producto
+      </Heading>
+      <Box bg="white" p={6} shadow="sm" borderRadius="md" border="1px solid" borderColor="gray.200">
+        <Text fontWeight="bold">Código:</Text>
+        <Text>{product?.sku}</Text>
+        <Text fontWeight="bold" mt={4}>Nombre:</Text>
+        <Text>{product?.name}</Text>
+        <Text fontWeight="bold" mt={4}>Categoría:</Text>
+        <Text>{product?.category}</Text>
+        <Text fontWeight="bold" mt={4}>Stock:</Text>
+        <Text>
+          {product?.stock} 
+          <Badge colorScheme={product?.stock > 0 ? 'green' : 'red'} ml={2}>
+            {product?.stock > 0 ? 'Disponible' : 'Agotado'}
+          </Badge>
+        </Text>
+        <Text fontWeight="bold" mt={4}>Precio:</Text>
+        <Text>${product?.price.toLocaleString()}</Text>
+      </Box>
+      <Button mt={6} colorScheme="blue" onClick={() => navigate('/inventory')}>
+        Volver al Inventario
+      </Button>
+    </Flex>
+  );
+};
+
+export default ProductDetails;
