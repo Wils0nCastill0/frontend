@@ -107,7 +107,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onProductC
       >
         {/* Encabezado */}
         <Heading size="md" mb={6}>
-          Nuevo Producto
+          Agregar Producto
         </Heading>
 
         {/* Formulario */}
