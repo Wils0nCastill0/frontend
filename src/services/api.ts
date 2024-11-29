@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, {  InternalAxiosRequestConfig } from 'axios';
 import { store } from '../store';
 import { logout } from '../store/slices/authSlice';
 
@@ -7,7 +7,9 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': '1'  // Añadido para ngrok
   },
+  // withCredentials: true  // Importante para CORS
 });
 
 // Interceptor de solicitudes
@@ -16,19 +18,21 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (token) {
     config.headers.set('Authorization', `Bearer ${token}`);
   }
+  // Asegurarse de que el header de ngrok siempre esté presente
+  config.headers.set('ngrok-skip-browser-warning', '1');
   return config;
 });
 
-// Interceptor de respuestas
 api.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  (error: AxiosError) => {
+  (response) => response,
+  (error) => {
     if (error.response?.status === 401) {
       store.dispatch(logout());
     }
     return Promise.reject(error);
   }
 );
+
 
 // Interfaces de datos
 interface Product {
@@ -75,44 +79,71 @@ interface LoginResponse {
   user: User;
   token: string;
 }
+// Interfaces actualizadas
+interface RegisterResponse {
+  status: string;
+  data: {
+    user: User;
+  };
+  message?: string;
+}
 
 // Servicios de autenticación
 export const authApi = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('/auth/login', { email, password });
-    return response.data; // El tipo de `response.data` ahora está tipado correctamente
-  },
-  register: async (userData: Record<string, unknown>): Promise<void> => {
-    const response = await api.post('/auth/register', userData);
     return response.data;
   },
+  
+  register: async (userData: Record<string, unknown>): Promise<User> => {
+    try {
+      const response = await api.post<RegisterResponse>('/auth/register', userData);
+      
+      // Verifica si la respuesta tiene la estructura esperada
+      if (!response?.data?.data?.user) {
+        throw new Error('Formato de respuesta inválido');
+      }
+      
+      return response.data.data.user;
+    } catch (error) {
+      console.error('Error en registro:', error);
+      
+      if (error instanceof Error) {
+        throw new Error(`Error en registro: ${error.message}`);
+      }
+      
+      throw new Error('Error durante el registro');
+    }
+  }
 };
 
 
-// Servicios de productos
+// Servicios de productos actualizado
 export const productsApi = {
   getAll: async (): Promise<Product[]> => {
     const response = await api.get('/products');
-    return response.data;
+    return response.data.data.products; // Ajustado según la estructura de respuesta
   },
   getById: async (id: string): Promise<Product> => {
     const response = await api.get(`/products/${id}`);
-    return response.data;
+    return response.data.data.product;
   },
   create: async (productData: Product): Promise<Product> => {
     const response = await api.post('/products', productData);
-    return response.data;
+    return response.data.data.product;
   },
   update: async (id: string, productData: Product): Promise<Product> => {
     const response = await api.put(`/products/${id}`, productData);
-    return response.data;
+    return response.data.data.product;
   },
   delete: async (id: string): Promise<void> => {
-    const response = await api.delete(`/products/${id}`);
-    return response.data;
+    await api.delete(`/products/${id}`);
   },
+  updateStock: async (id: string, quantity: number, operation: 'add' | 'subtract'): Promise<Product> => {
+    const response = await api.patch(`/products/${id}/stock`, { quantity, operation });
+    return response.data.data.product;
+  }
 };
-
 // Servicios de ventas
 export const salesApi = {
   create: async (saleData: Sale): Promise<Sale> => {

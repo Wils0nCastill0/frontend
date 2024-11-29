@@ -12,22 +12,33 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi } from '../services/auth'; // Asegúrate de que la ruta sea correcta
+import { authApi } from '../services/api'; // Cambiado a importar desde api.ts
 
 export const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const toast = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        const role = 'admin'; // Define el rol como admin por defecto
-
+        setIsLoading(true);
+        
         try {
-            await authApi.register({ name, email, password, role });
+            const userData = {
+                name,
+                email,
+                password,
+                role: 'admin' // Role por defecto
+            };
+    
+            console.log('Intentando registro con:', userData);
+            
+            const response = await authApi.register(userData);
+            console.log('Registro exitoso:', response);
+    
             toast({
                 title: 'Registro exitoso',
                 description: 'Tu cuenta ha sido creada. Por favor inicia sesión.',
@@ -35,19 +46,22 @@ export const Register = () => {
                 duration: 3000,
                 isClosable: true,
             });
-            navigate('/login'); // Redirige al login después de registrarse
-        } catch (error: unknown) {
-            const errorMessage =
-                error instanceof Error && error.message
-                    ? error.message
-                    : 'Error al registrarse';
+            
+            navigate('/login');
+        } catch (error: any) {
+            console.error('Error detallado:', error);
+            
+            const errorMessage = error.message || 'Error desconocido en el registro';
+            
             toast({
                 title: 'Error al registrarse',
                 description: errorMessage,
                 status: 'error',
-                duration: 3000,
+                duration: 5000,
                 isClosable: true,
             });
+        }finally {
+            setIsLoading(false)
         }
     };
 
@@ -79,6 +93,7 @@ export const Register = () => {
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         required
+                                        isDisabled={isLoading}
                                     />
                                 </FormControl>
                                 <FormControl id="email">
@@ -88,6 +103,7 @@ export const Register = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        isDisabled={isLoading}
                                     />
                                 </FormControl>
                                 <FormControl id="password">
@@ -97,15 +113,17 @@ export const Register = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
+                                        isDisabled={isLoading}
                                     />
                                 </FormControl>
-                                {/* El campo de rol se elimina porque siempre será admin */}
                                 <Button
                                     type="submit"
                                     colorScheme="blue"
                                     size="lg"
                                     fontSize="md"
                                     width="full"
+                                    isLoading={isLoading}
+                                    loadingText="Registrando..."
                                 >
                                     Registrarse
                                 </Button>

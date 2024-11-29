@@ -1,30 +1,49 @@
-import api from '../services/api'; // Asegúrate de que esta ruta sea la correcta.
+import api from '../services/api';
 
-// Define los tipos esperados para el usuario y el token
-interface User {
-    id: string;
-    name: string;
-    email: string;
-  // Agrega otras propiedades relevantes según el modelo de tu backend
-}
+// interface User {
+//     id: string;
+//     name: string;
+//     email: string;
+//     role: 'admin' | 'cashier' | 'inventory_manager';
+//     active: boolean;
+// }
 
-interface LoginResponse {
-    user: User;
-    token: string;
-}
+// interface RegisterData {
+//     name: string;
+//     email: string;
+//     password: string;
+//     role: 'admin' | 'cashier';
+// }
 
-// Servicios de autenticación
+// En auth.ts
 export const authApi = {
-    login: async (email: string, password: string): Promise<LoginResponse> => {
-        const response = await api.post<LoginResponse>('/auth/login', { email, password });
-        return response.data;
+    login: async (email: string, password: string) => {
+      const response = await api.post('/auth/login', { email, password });
+      return response.data;
     },
-    register: async (userData: Record<string, unknown>): Promise<void> => {
+  
+    register: async (userData: {
+      name: string;
+      email: string;
+      password: string;
+      role: string;
+    }) => {
+      try {
+        console.log('Datos a enviar:', userData);
         const response = await api.post('/auth/register', userData);
+        console.log('Respuesta completa:', response);
         return response.data;
+      } catch (error) {
+        console.error('Error en registro:', error);
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error('Error desconocido en el registro');
+      }
     },
-    getRoles: async (): Promise<string[]> => {
-        const response = await api.get('/roles'); // Asegúrate de que este endpoint esté en tu backend
-        return response.data;
-    },
-};
+  
+    getRoles: async () => {
+      const response = await api.get('/roles');
+      return response.data;
+    }
+  };
