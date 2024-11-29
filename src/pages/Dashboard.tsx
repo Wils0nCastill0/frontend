@@ -29,6 +29,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { CollapsibleSidebar } from '../components/layout/CollapsibleSidebar'; // Agregar barra lateral
+import { useDisclosure } from '@chakra-ui/react';
 
 // Registro de componentes de chart.js
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
@@ -52,6 +54,7 @@ const fakeStats = {
 };
 
 export const Dashboard = () => {
+  const { isOpen, onToggle } = useDisclosure(); // Estado para la barra lateral
   const [stats, setStats] = useState(fakeStats);
 
   // Fetch stats (mocked for now)
@@ -98,36 +101,40 @@ export const Dashboard = () => {
   };
 
   return (
-    <Flex direction="column" height="100vh" bg="gray.50">
-      {/* Header */}
-      <Flex
-        as="header"
-        bg="white"
-        px="6"
-        py="4"
-        borderBottom="1px"
-        borderColor="gray.200"
-        justify="space-between"
-        align="center"
-      >
-        <Text fontSize="lg" fontWeight="bold">
-          SGI
-        </Text>
-        <Flex align="center">
-          <Select placeholder="Último mes" size="sm" mr="4" />
-          <Text mr="4">Usuario de Prueba</Text>
-          <IconButton
-            aria-label="Cerrar sesión"
-            icon={<FiLogOut />}
-            colorScheme="red"
-            variant="ghost"
-          />
-        </Flex>
-      </Flex>
+    <Flex height="100vh">
+      {/* Barra lateral */}
+      <CollapsibleSidebar isOpen={isOpen} onToggle={onToggle} />
 
-      {/* Main Content */}
-      <Flex flex="1">
-        <Box flex="1" p="6">
+      {/* Contenido principal */}
+      <Box flex="1" ml={isOpen ? '240px' : '60px'} transition="margin-left 0.3s" bg="gray.50">
+        {/* Header */}
+        <Flex
+          as="header"
+          bg="white"
+          px="6"
+          py="4"
+          borderBottom="1px"
+          borderColor="gray.200"
+          justify="space-between"
+          align="center"
+        >
+          <Text fontSize="lg" fontWeight="bold">
+            SGI
+          </Text>
+          <Flex align="center">
+            <Select placeholder="Último mes" size="sm" mr="4" />
+            <Text mr="4">Usuario de Prueba</Text>
+            <IconButton
+              aria-label="Cerrar sesión"
+              icon={<FiLogOut />}
+              colorScheme="red"
+              variant="ghost"
+            />
+          </Flex>
+        </Flex>
+
+        {/* Main Content */}
+        <Box p="6">
           <Heading mb="6">Dashboard</Heading>
 
           {/* Statistics */}
@@ -171,18 +178,20 @@ export const Dashboard = () => {
           </Grid>
 
           {/* Charts and Lists */}
-          <Grid templateColumns={{ base: '1fr', md: '2fr 1fr' }} gap={6}>
+          <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6}>
             <Card>
               <CardBody>
-                <Heading size="md" mb="4">
+                <Heading size="sm" mb="4">
                   Ventas Diarias vs Mes Anterior
                 </Heading>
-                <Line data={lineChartData} />
+                <Box height="200px">
+                  <Line data={lineChartData} options={{ maintainAspectRatio: false }} />
+                </Box>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <Heading size="md" mb="4">
+                <Heading size="sm" mb="4">
                   Stock Crítico
                 </Heading>
                 <VStack align="start" spacing={3}>
@@ -196,18 +205,20 @@ export const Dashboard = () => {
             </Card>
           </Grid>
 
-          <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mt={6}>
+          <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6} mt={6}>
             <Card>
               <CardBody>
-                <Heading size="md" mb="4">
+                <Heading size="sm" mb="4">
                   Top Productos
                 </Heading>
-                <Bar data={barChartData} />
+                <Box height="200px">
+                  <Bar data={barChartData} options={{ maintainAspectRatio: false }} />
+                </Box>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
-                <Heading size="md" mb="4">
+                <Heading size="sm" mb="4">
                   Ventas por Hora
                 </Heading>
                 <Text color="gray.500">Próximamente...</Text>
@@ -215,7 +226,7 @@ export const Dashboard = () => {
             </Card>
           </Grid>
         </Box>
-      </Flex>
+      </Box>
     </Flex>
   );
 };

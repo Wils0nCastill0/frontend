@@ -46,7 +46,7 @@ export const AppRoutes = () => {
   return (
     <Routes>
       {/* Ruta inicial redirige a register */}
-      <Route path="/" element={<Navigate to="/register" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
 
       {/* Rutas públicas */}
       <Route path="/register" element={<Register />} />
