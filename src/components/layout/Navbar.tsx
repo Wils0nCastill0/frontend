@@ -19,9 +19,10 @@ import {
   
   interface NavbarProps {
     onMenuClick: () => void;
+    userName: string;
   }
   
-  export const Navbar = ({ onMenuClick }: NavbarProps) => {
+  export const Navbar = ({ onMenuClick, userName }: NavbarProps) => {
     const { colorMode, toggleColorMode } = useColorMode();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -51,7 +52,7 @@ import {
               icon={<MenuIcon />}
             />
             <Text fontSize="xl" fontWeight="bold">
-              SGC
+              SGI
             </Text>
           </HStack>
   
@@ -62,6 +63,10 @@ import {
               variant="ghost"
               aria-label="toggle theme"
             />
+            
+            <Flex align="center">
+              <Text mr="4">{userName}</Text>
+            </Flex>
   
             <Menu>
               <MenuButton

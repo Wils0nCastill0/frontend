@@ -9,135 +9,61 @@ import {
   CardBody,
   Heading,
   Flex,
-  Text,
-  IconButton,
-  Select,
-  VStack,
-  Badge,
 } from '@chakra-ui/react';
-import { FiLogOut } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { CollapsibleSidebar } from '../components/layout/CollapsibleSidebar'; // Agregar barra lateral
+import { CollapsibleSidebar } from '../components/layout/CollapsibleSidebar';
 import { useDisclosure } from '@chakra-ui/react';
-
-// Registro de componentes de chart.js
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
-
-// Datos ficticios
-const fakeStats = {
-  totalRevenue: 1524300,
-  averageTicket: 12450,
-  totalTransactions: 1245,
-  grossMargin: 32.4,
-  dailySalesData: {
-    currentMonth: [100, 200, 300, 400, 500, 600, 700],
-    lastMonth: [90, 180, 270, 360, 450, 540, 630],
-  },
-  topProducts: [
-    { name: 'Coca Cola 2L', quantity: 245 },
-    { name: 'Pan Molde', quantity: 180 },
-    { name: 'Leche', quantity: 156 },
-  ],
-  criticalStock: ['Coca Cola 2L (5 unid)', 'Pan Integral (3 unid)'],
-};
+import { Navbar } from '../components/layout/Navbar';
+import { authApi } from '../services/auth';
+import { productsApi } from '../services/api';
 
 export const Dashboard = () => {
-  const { isOpen, onToggle } = useDisclosure(); // Estado para la barra lateral
-  const [stats, setStats] = useState(fakeStats);
+  const { isOpen, onToggle } = useDisclosure();
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    averageTicket: 0,
+    totalTransactions: 0,
+    grossMargin: 0,
+    dailySalesData: { currentMonth: [], lastMonth: [] },
+    topProducts: [],
+    criticalStock: [],
+  });
+  const [userName, setUserName] = useState('Usuario');
 
-  // Fetch stats (mocked for now)
   useEffect(() => {
-    const fetchStatsFromAPI = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setStats(fakeStats);
+    const fetchData = async () => {
+      try {
+        const user = await authApi.getUser();
+        setUserName(user.name);
+
+        const salesStats = await productsApi.getSalesStats();
+        const topProducts = await productsApi.getTopProducts();
+        const criticalStock = await productsApi.getCriticalStock();
+
+        setStats({
+          totalRevenue: salesStats.totalRevenue,
+          averageTicket: salesStats.averageTicket,
+          totalTransactions: salesStats.totalTransactions,
+          grossMargin: salesStats.grossMargin,
+          dailySalesData: salesStats.dailySalesData,
+          topProducts,
+          criticalStock,
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     };
 
-    fetchStatsFromAPI();
+    fetchData();
   }, []);
-
-  const lineChartData = {
-    labels: stats.dailySalesData.currentMonth.map((_, index) => `Día ${index + 1}`),
-    datasets: [
-      {
-        label: 'Mes Actual',
-        data: stats.dailySalesData.currentMonth,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.4,
-      },
-      {
-        label: 'Mes Anterior',
-        data: stats.dailySalesData.lastMonth,
-        borderColor: 'rgba(153, 102, 255, 1)',
-        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        tension: 0.4,
-      },
-    ],
-  };
-
-  const barChartData = {
-    labels: stats.topProducts.map((product) => product.name),
-    datasets: [
-      {
-        label: 'Unidades Vendidas',
-        data: stats.topProducts.map((product) => product.quantity),
-        backgroundColor: 'rgba(255, 159, 64, 0.2)',
-        borderColor: 'rgba(255, 159, 64, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
 
   return (
     <Flex height="100vh">
-      {/* Barra lateral */}
       <CollapsibleSidebar isOpen={isOpen} onToggle={onToggle} />
-
-      {/* Contenido principal */}
       <Box flex="1" ml={isOpen ? '240px' : '60px'} transition="margin-left 0.3s" bg="gray.50">
-        {/* Header */}
-        <Flex
-          as="header"
-          bg="white"
-          px="6"
-          py="4"
-          borderBottom="1px"
-          borderColor="gray.200"
-          justify="space-between"
-          align="center"
-        >
-          <Text fontSize="lg" fontWeight="bold">
-            SGI
-          </Text>
-          <Flex align="center">
-            <Select placeholder="Último mes" size="sm" mr="4" />
-            <Text mr="4">Usuario de Prueba</Text>
-            <IconButton
-              aria-label="Cerrar sesión"
-              icon={<FiLogOut />}
-              colorScheme="red"
-              variant="ghost"
-            />
-          </Flex>
-        </Flex>
-
-        {/* Main Content */}
+        <Navbar onMenuClick={onToggle} userName={userName} />
         <Box p="6">
           <Heading mb="6">Dashboard</Heading>
-
-          {/* Statistics */}
           <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap={6} mb={6}>
             <Card>
               <CardBody>
@@ -146,82 +72,6 @@ export const Dashboard = () => {
                   <StatNumber>${stats.totalRevenue.toLocaleString()}</StatNumber>
                   <StatHelpText>↑ 12.5% vs mes anterior</StatHelpText>
                 </Stat>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Ticket Promedio</StatLabel>
-                  <StatNumber>${stats.averageTicket.toLocaleString()}</StatNumber>
-                  <StatHelpText>↑ 5.2% vs mes anterior</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Total Transacciones</StatLabel>
-                  <StatNumber>{stats.totalTransactions}</StatNumber>
-                  <StatHelpText>↓ 3.1% vs mes anterior</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>Margen Bruto</StatLabel>
-                  <StatNumber>{stats.grossMargin}%</StatNumber>
-                  <StatHelpText>↑ 2.1% vs mes anterior</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-          </Grid>
-
-          {/* Charts and Lists */}
-          <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6}>
-            <Card>
-              <CardBody>
-                <Heading size="sm" mb="4">
-                  Ventas Diarias vs Mes Anterior
-                </Heading>
-                <Box height="200px">
-                  <Line data={lineChartData} options={{ maintainAspectRatio: false }} />
-                </Box>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <Heading size="sm" mb="4">
-                  Stock Crítico
-                </Heading>
-                <VStack align="start" spacing={3}>
-                  {stats.criticalStock.map((item, index) => (
-                    <Badge key={index} colorScheme="red" variant="subtle" p="2">
-                      {item}
-                    </Badge>
-                  ))}
-                </VStack>
-              </CardBody>
-            </Card>
-          </Grid>
-
-          <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6} mt={6}>
-            <Card>
-              <CardBody>
-                <Heading size="sm" mb="4">
-                  Top Productos
-                </Heading>
-                <Box height="200px">
-                  <Bar data={barChartData} options={{ maintainAspectRatio: false }} />
-                </Box>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <Heading size="sm" mb="4">
-                  Ventas por Hora
-                </Heading>
-                <Text color="gray.500">Próximamente...</Text>
               </CardBody>
             </Card>
           </Grid>
