@@ -1,66 +1,78 @@
+import  { useState, useEffect } from 'react';
 import {
   Box,
-  Input,
+  Flex,
   Button,
+  Input,
+  Text,
+  useToast,
   Avatar,
   Badge,
   Stack,
-  Flex,
-  Text,
-  useToast,
-  HStack,
- } from '@chakra-ui/react';
- import { useEffect, useState } from 'react';
- import { userApi } from '../services/users';
- import { User } from '../types';
- 
- interface ExtendedUser extends User {
-  status: string; 
- }
- 
- const UsersPermissions = () => {
+} from '@chakra-ui/react';
+import UserModal from '../components/user/registerModal';
+import { userApi } from '../services/users';
+import { User } from '../types';
+
+interface ExtendedUser extends User {
+  status: string; // Estado derivado como "Activo" o "Inactivo"
+}
+
+const UsersPermissions = () => {
   const [users, setUsers] = useState<ExtendedUser[]>([]);
-  const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
+  const [isModalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const toast = useToast();
- 
+
+  // Fetch inicial para obtener usuarios
   useEffect(() => {
     fetchUsers();
   }, []);
- 
+
   const fetchUsers = async () => {
     try {
       const usersData = await userApi.getAll();
       const usersWithStatus = usersData.map((user: User) => ({
         ...user,
-        status: 'active'
+        status: user.active ? 'Activo' : 'Inactivo',
       }));
       setUsers(usersWithStatus);
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: 'Error loading users',
-        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        title: 'Error al cargar usuarios',
+        description: error.response?.data?.message || 'Error desconocido.',
         status: 'error',
         duration: 3000,
+        isClosable: true,
       });
     }
-   };
- 
-  const filteredUsers = users.filter(user => 
+  };
+
+  const handleUserCreated = (newUser: User) => {
+    const extendedUser: ExtendedUser = {
+      ...newUser,
+      status: newUser.active ? 'Activo' : 'Inactivo',
+    };
+    setUsers((prevUsers) => [...prevUsers, extendedUser]);
+  };
+
+  const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handlePermissionChange = async (type: string, action: string) => {
-    // Implement permission change logic here
-  };
-
   return (
     <Box p={5}>
+      {/* Título y botón para crear nuevo usuario */}
       <Flex justify="space-between" mb={5}>
-        <Text fontSize="xl">Gestión de Usuarios y Permisos</Text>
-        <Button colorScheme="blue">Nuevo Usuario</Button>
+        <Text fontSize="xl" fontWeight="bold">
+          Gestión de Usuarios y Permisos
+        </Text>
+        <Button colorScheme="blue" onClick={() => setModalOpen(true)}>
+          Nuevo Usuario
+        </Button>
       </Flex>
 
+      {/* Input para búsqueda */}
       <Input
         placeholder="Buscar usuario..."
         mb={5}
@@ -68,84 +80,37 @@ import {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
-      <Flex>
-        <Box w="300px" borderRight="1px" borderColor="gray.200" pr={4}>
-          {filteredUsers.map((user) => (
-            <Flex
-              key={user.id}
-              p={3}
-              cursor="pointer"
-              _hover={{ bg: 'gray.50' }}
-              onClick={() => setSelectedUser(user)}
-              align="center"
-              mb={2}
-              borderRadius="md"
-              bg={selectedUser?.id === user.id ? 'gray.100' : 'white'}
-            >
-              <Avatar
-                size="sm"
-                name={user.name}
-                bg="blue.500"
-                color="white"
-                mr={3}
-              />
-              <Box flex={1}>
-                <Text fontWeight="medium">{user.name}</Text>
-                <Text fontSize="sm" color="gray.600">{user.role}</Text>
-              </Box>
-              <Badge colorScheme={user.status === 'active' ? 'green' : 'red'}>
-                {user.status === 'active' ? 'Activo' : 'Inactivo'}
-              </Badge>
-            </Flex>
-          ))}
-        </Box>
+      {/* Lista de usuarios */}
+      <Stack spacing={4}>
+        {filteredUsers.map((user) => (
+          <Flex
+            key={user.id}
+            p={4}
+            align="center"
+            bg="gray.50"
+            borderRadius="md"
+            boxShadow="sm"
+          >
+            <Avatar name={user.name} mr={4} />
+            <Box flex="1">
+              <Text fontWeight="medium">{user.name}</Text>
+              <Text fontSize="sm" color="gray.600">
+                {user.role}
+              </Text>
+            </Box>
+            <Badge colorScheme={user.status === 'Activo' ? 'green' : 'red'}>
+              {user.status}
+            </Badge>
+          </Flex>
+        ))}
+      </Stack>
 
-        {selectedUser && (
-          <Box flex={1} pl={6}>
-            <Text fontSize="lg" mb={4}>Detalles de Usuario</Text>
-            <Stack spacing={4}>
-              <Box>
-                <Text fontWeight="medium">Nombre</Text>
-                <Text>{selectedUser.name}</Text>
-              </Box>
-              <Box>
-                <Text fontWeight="medium">Email</Text>
-                <Text>{selectedUser.email}</Text>
-              </Box>
-              <Box>
-                <Text fontWeight="medium">Rol</Text>
-                <Text>{selectedUser.role}</Text>
-              </Box>
-
-              <Box>
-                <Text fontWeight="medium" mb={2}>Permisos</Text>
-                <Stack spacing={3}>
-                  <Box>
-                    <Text mb={2}>Punto de Venta</Text>
-                    <HStack spacing={2}>
-                      <Button size="sm">Ver</Button>
-                      <Button size="sm">Crear/Editar</Button>
-                      <Button size="sm">Eliminar</Button>
-                    </HStack>
-                  </Box>
-                  <Box>
-                    <Text mb={2}>Inventario</Text>
-                    <HStack spacing={2}>
-                      <Button size="sm">Ver</Button>
-                      <Button size="sm">Crear/Editar</Button>
-                      <Button size="sm" isDisabled>Eliminar</Button>
-                    </HStack>
-                  </Box>
-                </Stack>
-              </Box>
-
-              <Button colorScheme="blue" mt={4}>
-                Guardar
-              </Button>
-            </Stack>
-          </Box>
-        )}
-      </Flex>
+      {/* Modal para nuevo usuario */}
+      <UserModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onUserCreated={handleUserCreated}
+      />
     </Box>
   );
 };

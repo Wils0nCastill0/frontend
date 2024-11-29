@@ -38,5 +38,9 @@ export const userApi = {
 
     deactivate: async (id: string): Promise<void> => {
         await api.delete(`/users/${id}`);
-    }
+    },
+    register: async (userData: Record<string, any>): Promise<User> => {
+        const response = await api.post('/auth/register', userData);
+        return response.data;
+      },
 };
