@@ -1,3 +1,4 @@
+// src/pages/POS.tsx
 import {
   Box,
   Flex,
@@ -17,10 +18,23 @@ import {
 } from '@chakra-ui/react';
 import { useCart } from '../hooks/useCart';
 import { PaymentModal } from '../components/pos/PaymentModal';
+import SearchProductModal from '../components/products/SearchProductModal';
 
 export const POS = () => {
-  const { cartItems, total } = useCart(); // Hook para manejar el carrito
-  const { isOpen, onOpen, onClose } = useDisclosure(); // Control del modal
+  const { cartItems, total, addItemToCart } = useCart(); // Hook para manejar el carrito
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Control del modal de pago
+  const searchModal = useDisclosure(); // Control del modal de búsqueda de producto
+
+  // Productos ficticios
+  const products = [
+    { id: '001', name: 'Coca Cola 2L', stock: 24, price: 2500 },
+    { id: '002', name: 'Sprite 2L', stock: 18, price: 2500 },
+  ];
+
+  const handleSelectProduct = (product: any) => {
+    addItemToCart(product); // Agregar el producto seleccionado al carrito
+    searchModal.onClose(); // Cerrar el modal de búsqueda
+  };
 
   return (
     <Flex height="100vh" direction="column" bg="gray.50" p={4}>
@@ -40,11 +54,15 @@ export const POS = () => {
           overflowY="auto"
           height="calc(100vh - 120px)"
         >
-          <Input
-            placeholder="Buscar producto o escanear código (F2)"
-            mb={4}
-            size="lg"
-          />
+          <Flex mb={4} justify="space-between">
+            <Input
+              placeholder="Buscar producto o escanear código (F2)"
+              size="lg"
+            />
+            <Button colorScheme="blue" ml={4} onClick={searchModal.onOpen}>
+              Buscar Producto
+            </Button>
+          </Flex>
           <Table variant="striped" colorScheme="gray">
             <Thead>
               <Tr>
@@ -97,7 +115,7 @@ export const POS = () => {
             colorScheme="blue"
             size="lg"
             width="full"
-            onClick={onOpen} // Abre el modal al hacer clic
+            onClick={onOpen} // Abre el modal de pago al hacer clic
           >
             PROCESAR PAGO (F12)
           </Button>
@@ -112,6 +130,14 @@ export const POS = () => {
 
       {/* Modal de Pago */}
       <PaymentModal isOpen={isOpen} onClose={onClose} total={total} />
+
+      {/* Modal de Búsqueda de Producto */}
+      <SearchProductModal
+        isOpen={searchModal.isOpen}
+        onClose={searchModal.onClose}
+        onSelectProduct={handleSelectProduct}
+        products={products}
+      />
     </Flex>
   );
 };

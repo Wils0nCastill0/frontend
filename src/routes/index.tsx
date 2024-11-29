@@ -31,6 +31,8 @@ import POSSettings from '../pages/configurates/POSSettings';
 import BackupSettings from '../pages/configurates/BackupSettings';
 import ClientHistory from '../pages/ClientHistory';
 import ProductDetails from '../pages/ProductDetails';
+import CashClosing from '../pages/CashClosing';
+import CashOpening from '../pages/CashOpening';
 
 
 
@@ -72,6 +74,8 @@ export const AppRoutes = () => {
       <Route path="/backup-settings" element={<BackupSettings />} />
       <Route path="/clients/:id" element={<ClientHistory />} />
       <Route path="/product-details" element={<ProductDetails />} />
+      <Route path="/cash-closing" element={<CashClosing />} />
+      <Route path= '/cash-opening' element={<CashOpening  />} />
 
 
 
