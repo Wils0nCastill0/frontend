@@ -20,6 +20,7 @@ interface ExtendedUser extends User {
 
 const UsersPermissions = () => {
   const [users, setUsers] = useState<ExtendedUser[]>([]);
+  const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const toast = useToast();
@@ -80,30 +81,68 @@ const UsersPermissions = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
-      {/* Lista de usuarios */}
-      <Stack spacing={4}>
-        {filteredUsers.map((user) => (
-          <Flex
-            key={user.id}
-            p={4}
-            align="center"
-            bg="gray.50"
-            borderRadius="md"
-            boxShadow="sm"
-          >
-            <Avatar name={user.name} mr={4} />
-            <Box flex="1">
-              <Text fontWeight="medium">{user.name}</Text>
-              <Text fontSize="sm" color="gray.600">
-                {user.role}
-              </Text>
-            </Box>
-            <Badge colorScheme={user.status === 'Activo' ? 'green' : 'red'}>
-              {user.status}
-            </Badge>
-          </Flex>
-        ))}
-      </Stack>
+      <Flex>
+        {/* Lista de usuarios */}
+        <Box w="300px" borderRight="1px" borderColor="gray.200" pr={4}>
+          <Stack spacing={4}>
+            {filteredUsers.map((user) => (
+              <Flex
+                key={user.id}
+                p={4}
+                align="center"
+                bg={selectedUser?.id === user.id ? 'gray.100' : 'white'}
+                borderRadius="md"
+                boxShadow="sm"
+                cursor="pointer"
+                _hover={{ bg: 'gray.50' }}
+                onClick={() => setSelectedUser(user)}
+              >
+                <Avatar name={user.name} mr={4} />
+                <Box flex="1">
+                  <Text fontWeight="medium">{user.name}</Text>
+                  <Text fontSize="sm" color="gray.600">
+                    {user.role}
+                  </Text>
+                </Box>
+                <Badge colorScheme={user.status === 'Activo' ? 'green' : 'red'}>
+                  {user.status}
+                </Badge>
+              </Flex>
+            ))}
+          </Stack>
+        </Box>
+
+        {/* Detalles del usuario seleccionado */}
+        {selectedUser && (
+          <Box flex="1" pl={6}>
+            <Text fontSize="lg" mb={4}>
+              Detalles de Usuario
+            </Text>
+            <Stack spacing={4}>
+              <Box>
+                <Text fontWeight="medium">Nombre</Text>
+                <Text>{selectedUser.name}</Text>
+              </Box>
+              <Box>
+                <Text fontWeight="medium">Email</Text>
+                <Text>{selectedUser.email}</Text>
+              </Box>
+              <Box>
+                <Text fontWeight="medium">Rol</Text>
+                <Text>{selectedUser.role}</Text>
+              </Box>
+              <Box>
+                <Text fontWeight="medium">Estado</Text>
+                <Badge
+                  colorScheme={selectedUser.status === 'Activo' ? 'green' : 'red'}
+                >
+                  {selectedUser.status}
+                </Badge>
+              </Box>
+            </Stack>
+          </Box>
+        )}
+      </Flex>
 
       {/* Modal para nuevo usuario */}
       <UserModal
