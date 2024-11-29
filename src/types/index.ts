@@ -1,12 +1,19 @@
 // User types
+// export interface User {
+//     id: string;
+//     name: string;
+//     email: string;
+//     role?: string; // Agrega role como obligatorio;
+//     isActive: boolean;
+//   }
 export interface User {
-    id: string;
-    name: string;
-    email: string;
-    role?: string; // Agrega role como obligatorio;
-    isActive: boolean;
-  }
-  
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'cashier' | 'inventory_manager';
+  active: boolean;
+}
+
   // Product types
   export interface Product {
     id: string;

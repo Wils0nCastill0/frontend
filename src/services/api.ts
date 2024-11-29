@@ -9,25 +9,42 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': '1'  // Añadido para ngrok
   },
-  // withCredentials: true  // Importante para CORS
 });
 
-// Interceptor de solicitudes
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.set('Authorization', `Bearer ${token}`);
+// Interceptor para requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+        console.log('Enviando request con token:', token);
+        console.log('Headers completos:', config.headers);
+    }
+    
+      return config;
+  },
+  (error) => {
+      console.error('Error en request interceptor:', error);
+      return Promise.reject(error);
   }
-  // Asegurarse de que el header de ngrok siempre esté presente
-  config.headers.set('ngrok-skip-browser-warning', '1');
-  return config;
-});
+);
 
+// Interceptor para responses
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      store.dispatch(logout());
+      console.error('Error en response:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          config: error.config
+      });
+
+       // Verifica el status de error 401
+       if (error.response?.status === 401) {
+        console.log('Error 401 detectado, limpiando sesión...');
+        localStorage.removeItem('token');
+        store.dispatch(logout());  // Llamar logout desde el store
+        window.location.href = '/login';  // Redirigir al login
     }
     return Promise.reject(error);
   }

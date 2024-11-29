@@ -1,49 +1,50 @@
-import api from '../services/api';
+// services/auth.ts
+import api from './api';
+import { User } from '../types';
 
-// interface User {
-//     id: string;
-//     name: string;
-//     email: string;
-//     role: 'admin' | 'cashier' | 'inventory_manager';
-//     active: boolean;
-// }
+interface LoginResponse {
+    success: boolean;
+    message: string;
+    data: {
+        user: User;
+        token: string;
+    };
+}
 
-// interface RegisterData {
-//     name: string;
-//     email: string;
-//     password: string;
-//     role: 'admin' | 'cashier';
-// }
-
-// En auth.ts
 export const authApi = {
-    login: async (email: string, password: string) => {
-      const response = await api.post('/auth/login', { email, password });
-      return response.data;
-    },
-  
-    register: async (userData: {
-      name: string;
-      email: string;
-      password: string;
-      role: string;
-    }) => {
-      try {
-        console.log('Datos a enviar:', userData);
-        const response = await api.post('/auth/register', userData);
-        console.log('Respuesta completa:', response);
-        return response.data;
-      } catch (error) {
-        console.error('Error en registro:', error);
-        if (error instanceof Error) {
-          throw error;
+    login: async (email: string, password: string): Promise<LoginResponse> => {
+        try {
+            const response = await api.post<LoginResponse>('/auth/login', { email, password });
+            console.log('Login response:', response.data); // Debug
+
+            if (response.data.data.token) {
+                const token = response.data.data.token;
+                localStorage.setItem('token', token);
+                // Establecer el token en los headers por defecto
+                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                console.log('Token guardado:', token); // Debug
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error('Error en login:', error);
+            throw error;
         }
-        throw new Error('Error desconocido en el registro');
-      }
     },
-  
-    getRoles: async () => {
-      const response = await api.get('/roles');
-      return response.data;
+
+    logout: () => {
+        localStorage.removeItem('token');
+        delete api.defaults.headers.common['Authorization'];
+    },
+
+    // Método para verificar si el usuario está autenticado
+    isAuthenticated: () => {
+        const token = localStorage.getItem('token');
+        return !!token;
+    },
+
+    // Método para obtener el token
+    getToken: () => {
+        return localStorage.getItem('token');
     }
-  };
+};

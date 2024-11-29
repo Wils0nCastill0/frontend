@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { CollapsibleSidebar } from '../components/layout/CollapsibleSidebar';
 import { Navbar } from '../components/layout/Navbar';
 import { useDisclosure } from '@chakra-ui/react';
-import { getClients, saveNewClient } from '../services/api'; // API functions
+// import { getClients, saveNewClient } from '../services/api'; // API functions
 
 const Clients: React.FC = () => {
     const { isOpen, onToggle } = useDisclosure();
@@ -57,9 +57,9 @@ const Clients: React.FC = () => {
     // Fetch clients from API (mocked for now)
     useEffect(() => {
         const fetchClients = async () => {
-            const data = await getClients(); // Call the API function
-            setClients(data);
-            setFilteredClients(data);
+            // const data = await getClients(); // Call the API function
+            // setClients(data);
+            // setFilteredClients(data);
         };
         fetchClients();
     }, []);
@@ -89,7 +89,7 @@ const Clients: React.FC = () => {
 
     const handleSave = async () => {
         try {
-            await saveNewClient(newClient); // Call the API to save the client
+            // await saveNewClient(newClient); // Call the API to save the client
             toast({
                 title: 'Cliente agregado',
                 description: 'El cliente se ha agregado correctamente.',
