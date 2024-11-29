@@ -9,16 +9,16 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
+    dispatch(logout()); // Despachamos la acción para cerrar sesión
+    navigate('/login'); // Redirigimos al login
   };
 
   return {
-    user: auth.user,
-    token: auth.token,
-    isAuthenticated: auth.isAuthenticated,
-    isLoading: auth.isLoading,
-    error: auth.error,
-    logout: handleLogout,
+    user: auth.user, // Información del usuario
+    token: auth.token, // Token de autenticación
+    isAuthenticated: auth.isAuthenticated, // Estado de autenticación
+    isLoading: auth.isLoading, // Estado de carga
+    error: auth.error, // Error de autenticación si existe
+    logout: handleLogout, // Función de cierre de sesión
   };
 };

@@ -7,7 +7,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': '1'  // Añadido para ngrok
+    'ngrok-skip-browser-warning': '1', // Añadido para ngrok
   },
 });
 
@@ -16,16 +16,16 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        console.log('Enviando request con token:', token);
-        console.log('Headers completos:', config.headers);
+      config.headers.Authorization = `Bearer ${token}`;
+      // console.log('Headers enviados:', config.headers); // Debug opcional
+    } else {
+      // console.log('No token found in localStorage'); // Debug opcional
     }
-    
-      return config;
+    return config;
   },
   (error) => {
-      console.error('Error en request interceptor:', error);
-      return Promise.reject(error);
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
   }
 );
 
@@ -33,27 +33,19 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-      console.error('Error en response:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          config: error.config
-      });
-
-       // Verifica el status de error 401
-       if (error.response?.status === 401) {
-        console.log('Error 401 detectado, limpiando sesión...');
-        localStorage.removeItem('token');
-        store.dispatch(logout());  // Llamar logout desde el store
-        window.location.href = '/login';  // Redirigir al login
+    console.error('Error en response:', error.response || error.message);
+    // Si el token es inválido o expiró, forzar logout
+    if (error.response?.status === 401) {
+      store.dispatch(logout());
     }
     return Promise.reject(error);
   }
 );
 
-
 // Interfaces de datos
-interface Product {
-  id?: string;
+// En src/services/api.ts
+export interface Product {
+  id?: string; // Cambiar `id` a opcional
   name: string;
   description?: string;
   price: number;
@@ -62,8 +54,9 @@ interface Product {
   sku: string;
 }
 
-interface Sale {
-  id?: string;
+
+export interface Sale {
+  id: string;
   items: Array<{
     productId: string;
     quantity: number;
@@ -73,7 +66,7 @@ interface Sale {
   notes?: string;
 }
 
-interface DashboardStats {
+export interface DashboardStats {
   dailySales: number;
   totalRevenue: number;
   averageTicket: number;
@@ -84,20 +77,18 @@ interface DashboardStats {
   }>;
 }
 
-// Define los tipos esperados para `user` y `token`
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
-  // Agrega más propiedades relevantes según el modelo de tu backend
 }
 
-interface LoginResponse {
+export interface LoginResponse {
   user: User;
   token: string;
 }
-// Interfaces actualizadas
-interface RegisterResponse {
+
+export interface RegisterResponse {
   status: string;
   data: {
     user: User;
@@ -108,90 +99,110 @@ interface RegisterResponse {
 // Servicios de autenticación
 export const authApi = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/auth/login', { email, password });
-    return response.data;
+    try {
+      const response = await api.post<{ data: LoginResponse }>('/auth/login', {
+        email,
+        password,
+      });
+
+      const { token } = response.data.data;
+      if (token) {
+        localStorage.setItem('token', token);
+        api.defaults.headers.common.Authorization = `Bearer ${token}`;
+        // console.log('Token guardado:', token); // Debug opcional
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw new Error('Error al iniciar sesión');
+    }
   },
-  
+
   register: async (userData: Record<string, unknown>): Promise<User> => {
     try {
       const response = await api.post<RegisterResponse>('/auth/register', userData);
-      
-      // Verifica si la respuesta tiene la estructura esperada
+
       if (!response?.data?.data?.user) {
         throw new Error('Formato de respuesta inválido');
       }
-      
+
       return response.data.data.user;
     } catch (error) {
       console.error('Error en registro:', error);
-      
-      if (error instanceof Error) {
-        throw new Error(`Error en registro: ${error.message}`);
-      }
-      
       throw new Error('Error durante el registro');
     }
-  }
+  },
 };
 
-
-// Servicios de productos actualizado
+// Servicios de productos
 export const productsApi = {
   getAll: async (): Promise<Product[]> => {
-    const response = await api.get('/products');
-    return response.data.data.products; // Ajustado según la estructura de respuesta
+    try {
+      const response = await api.get<{ data: { products: Product[] } }>('/products');
+      return response.data.data.products;
+    } catch (error) {
+      console.error('Error al obtener productos:', error);
+      throw new Error('Error al cargar productos');
+    }
   },
+
   getById: async (id: string): Promise<Product> => {
-    const response = await api.get(`/products/${id}`);
+    const response = await api.get<{ data: { product: Product } }>(`/products/${id}`);
     return response.data.data.product;
   },
+
   create: async (productData: Product): Promise<Product> => {
-    const response = await api.post('/products', productData);
+    const response = await api.post<{ data: { product: Product } }>('/products', productData);
     return response.data.data.product;
   },
+
   update: async (id: string, productData: Product): Promise<Product> => {
-    const response = await api.put(`/products/${id}`, productData);
+    const response = await api.put<{ data: { product: Product } }>(
+      `/products/${id}`,
+      productData
+    );
     return response.data.data.product;
   },
+
   delete: async (id: string): Promise<void> => {
     await api.delete(`/products/${id}`);
   },
-  updateStock: async (id: string, quantity: number, operation: 'add' | 'subtract'): Promise<Product> => {
-    const response = await api.patch(`/products/${id}/stock`, { quantity, operation });
+
+  updateStock: async (
+    id: string,
+    quantity: number,
+    operation: 'add' | 'subtract'
+  ): Promise<Product> => {
+    const response = await api.patch<{ data: { product: Product } }>(
+      `/products/${id}/stock`,
+      { quantity, operation }
+    );
     return response.data.data.product;
-  }
+  },
 };
+
 // Servicios de ventas
 export const salesApi = {
   create: async (saleData: Sale): Promise<Sale> => {
-    const response = await api.post('/sales', saleData);
-    return response.data;
+    const response = await api.post<{ data: Sale }>('/sales', saleData);
+    return response.data.data;
   },
+
   getAll: async (): Promise<Sale[]> => {
-    const response = await api.get('/sales');
-    return response.data;
+    const response = await api.get<{ data: Sale[] }>('/sales');
+    return response.data.data;
   },
+
   getById: async (id: string): Promise<Sale> => {
-    const response = await api.get(`/sales/${id}`);
-    return response.data;
+    const response = await api.get<{ data: Sale }>(`/sales/${id}`);
+    return response.data.data;
   },
+
   getDailyStats: async (): Promise<DashboardStats> => {
-    const response = await api.get('/sales/daily-stats');
-    return response.data;
+    const response = await api.get<{ data: DashboardStats }>('/sales/daily-stats');
+    return response.data.data;
   },
 };
-
-// src/services/api.ts
-export const apiFetchTopSellingProducts = async () => {
-  // Datos ficticios
-  return [
-    { id: '1', name: 'Producto A', category: 'Categoría 1', unitsSold: 1200, revenue: 24000 },
-    { id: '2', name: 'Producto B', category: 'Categoría 2', unitsSold: 900, revenue: 18000 },
-    { id: '3', name: 'Producto C', category: 'Categoría 3', unitsSold: 700, revenue: 14000 },
-    { id: '4', name: 'Producto D', category: 'Categoría 4', unitsSold: 500, revenue: 10000 },
-    { id: '5', name: 'Producto E', category: 'Categoría 5', unitsSold: 400, revenue: 8000 },
-  ];
-};
-
 
 export default api;

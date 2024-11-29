@@ -33,13 +33,14 @@ import ClientHistory from '../pages/ClientHistory';
 import ProductDetails from '../pages/ProductDetails';
 import CashClosing from '../pages/CashClosing';
 import CashOpening from '../pages/CashOpening';
+import ProductModal from '../components/products/ProductModal';
 
 
 
 // Rutas protegidas
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const token = localStorage.getItem('authToken'); // Verifica el token
+  return token ? children : <Navigate to="/login" />;
 };
 
 export const AppRoutes = () => {
@@ -55,6 +56,16 @@ export const AppRoutes = () => {
       <Route path="/top-selling-products" element={<TopSellingProducts />} />
       <Route path="/hourly-sales" element={<HourlySales />} />
       <Route path="/home" element={<Home />} />
+      <Route
+  path="/product-modal"
+  element={
+    <ProductModal
+      isOpen={true} // Aquí decides si el modal estará abierto inicialmente
+      onClose={() => console.log('Cerrar modal')} // Una función para manejar el cierre
+    />
+  }
+/>
+
       <Route path="/reports" element={<Reports />} />
       <Route path="/inventory" element={<Inventory />} />
       <Route path="/mass-import" element={<MassImport />} />
