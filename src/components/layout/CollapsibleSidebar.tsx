@@ -40,8 +40,8 @@ import {
         { name: 'Productos', icon: Package, path: '/products' },
         { name: 'Ventas', icon: LineChart, path: '/sales' },
         { name: 'Clientes', icon: Users, path: '/clients' },
-        { name: 'Usuarios', icon: Users, path: '/users', roles: ['admin'] },
-        { name: 'Configuración', icon: Settings, path: '/settings', roles: ['admin'] },
+        { name: 'Usuarios', icon: Users, path: '/users-permissions', roles: ['admin'] },
+        { name: 'Configuración', icon: Settings, path: '/system-configuration', roles: ['admin'] },
     ];
     
     export const CollapsibleSidebar = ({ isOpen, onToggle }: CollapsibleSidebarProps) => {

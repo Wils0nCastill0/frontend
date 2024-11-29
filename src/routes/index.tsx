@@ -87,6 +87,7 @@ export const AppRoutes = () => {
       <Route path="/product-details" element={<ProductDetails />} />
       <Route path="/cash-closing" element={<CashClosing />} />
       <Route path= '/cash-opening' element={<CashOpening  />} />
+      <Route path="/pos" element={<POS />} />
 
 
 
@@ -101,7 +102,7 @@ export const AppRoutes = () => {
           </PrivateRoute>
         }
       >
-        <Route path="/pos" element={<POS />} />
+        
         <Route path="/products" element={<Products />} />
         <Route path="/sales" element={<Sales />} />
         
