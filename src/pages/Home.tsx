@@ -36,13 +36,13 @@ import {
         title: 'Usuarios',
         description: 'Administra usuarios y permisos',
         icon: Users,
-        path: '/users-permissions', // Ruta para redirigir
+        path: '/register', // Ruta para redirigir
         },
         {
         title: 'Configuración',
         description: 'Configura tu sistema',
         icon: Settings,
-        path: '/settings', // Ruta para redirigir
+        path: '/system-configuration', // Ruta para redirigir
         },
     ];
 
@@ -57,7 +57,7 @@ import {
         title: 'Reporte Diario',
         description: 'Ver el resumen del día',
         icon: Clipboard,
-        path: '/daily-report', // Ruta para redirigir
+        path: '/sales-report', // Ruta para redirigir
         },
         {
         title: 'Inventario',
