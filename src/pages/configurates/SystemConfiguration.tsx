@@ -47,11 +47,11 @@ const SystemConfiguration: React.FC = () => {
     const navigate = useNavigate();
 
     const handleEditPOS = () => {
-        navigate('/configurates/pos-settings'); // Cambiar esta ruta según la estructura de tu aplicación
+        navigate('  /pos-settings'); // Cambiar esta ruta según la estructura de tu aplicación
     };
 
     const handleEditBackupSettings = () => {
-        navigate('/configurates/backup-settings'); // Ruta a la configuración de respaldos
+        navigate('/backup-settings'); // Ruta a la configuración de respaldos
     };
 
     return (
