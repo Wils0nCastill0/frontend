@@ -12,11 +12,11 @@ import {
         LayoutDashboard,
         ShoppingCart,
         Package,
-        LineChart,
         Settings,
         Menu,
         Home,
         Users,
+        FileText,
     } from 'lucide-react';
     import { useSelector } from 'react-redux';
     import { RootState } from '../../store';
@@ -29,7 +29,7 @@ import {
     }
     
     interface CollapsibleSidebarProps {
-        isOpen: boolean; // Control externo del estado abierto/cerrado
+        isOpen: boolean; // Control externo del estado abierto/cerrado 
         onToggle: () => void; // Función para alternar el estado
     }
     
@@ -37,8 +37,8 @@ import {
         { name: 'Home', icon: Home, path: '/home' },
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
         { name: 'POS', icon: ShoppingCart, path: '/pos' },
-        { name: 'Productos', icon: Package, path: '/inventory' },
-        { name: 'Ventas', icon: LineChart, path: '/sales' },
+        { name: 'Inventario', icon: Package, path: '/inventory' },
+        { name: 'Reportes', icon: FileText, path: '/reports' },
         { name: 'Clientes', icon: Users, path: '/clients' },
         { name: 'Usuarios', icon: Users, path: '/users-permissions', roles: ['admin'] },
         { name: 'Configuración', icon: Settings, path: '/system-configuration', roles: ['admin'] },
