@@ -60,7 +60,7 @@ export const POS = () => {
   };
 
   return (
-    <Flex height="100vh" direction="column" bg="gray.50" p={4}>
+    <Flex height="100vh" direction="column" bg="gray.50" overflow="hidden" p={4}>
       {/* Título */}
       <Heading size="lg" mb={4}>
         Punto de Venta
@@ -101,7 +101,7 @@ export const POS = () => {
 
         {/* Sección Derecha */}
         <GridItem>
-          <Flex direction="column" align="stretch" gap={4}>
+          <Flex height="100vh" direction="column" align="stretch" bg="gray.50" gap={4}>
             <Box
               bg="white"
               rounded="md"
