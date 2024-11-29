@@ -15,6 +15,8 @@ import {
         LineChart,
         Settings,
         Menu,
+        Home,
+        Users,
     } from 'lucide-react';
     import { useSelector } from 'react-redux';
     import { RootState } from '../../store';
@@ -32,10 +34,13 @@ import {
     }
     
     const NavItems: NavItem[] = [
+        { name: 'Home', icon: Home, path: '/' },
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
         { name: 'POS', icon: ShoppingCart, path: '/pos' },
         { name: 'Productos', icon: Package, path: '/products' },
         { name: 'Ventas', icon: LineChart, path: '/sales' },
+        { name: 'Clientes', icon: Users, path: '/clients' },
+        { name: 'Usuarios', icon: Users, path: '/users', roles: ['admin'] },
         { name: 'Configuración', icon: Settings, path: '/settings', roles: ['admin'] },
     ];
     

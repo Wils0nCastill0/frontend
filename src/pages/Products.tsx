@@ -22,6 +22,7 @@ import { productsApi } from '../services/api';
 import ProductModal from '../components/products/ProductModal';
 import { DeleteAlert } from '../components/common/DeleteAlert';
 import { Product } from '../types';
+import { useNavigate } from 'react-router-dom'; // Agregado para navegación
 
 export const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -29,6 +30,7 @@ export const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteAlert = useDisclosure();
+  const navigate = useNavigate(); // Hook para navegación
 
   useEffect(() => {
     fetchProducts();
@@ -70,6 +72,10 @@ export const Products = () => {
         console.error('Error deleting product:', error);
       }
     }
+  };
+
+  const handleViewDetails = (productId: string) => {
+    navigate(`/products/${productId}`); // Redirigir a la página de detalles
   };
 
   const filteredProducts = products.filter(
@@ -119,7 +125,12 @@ export const Products = () => {
           {filteredProducts.map((product) => (
             <Tr key={product.id}>
               <Td>{product.sku}</Td>
-              <Td>{product.name}</Td>
+              <Td
+                onClick={() => handleViewDetails(product.id)} // Agregado para redirigir al hacer clic
+                style={{ cursor: 'pointer', color: 'blue' }}
+              >
+                {product.name}
+              </Td>
               <Td>{product.category}</Td>
               <Td isNumeric>${product.price.toFixed(2)}</Td>
               <Td isNumeric>

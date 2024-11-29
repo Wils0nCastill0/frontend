@@ -12,17 +12,11 @@ import {
   Text,
   IconButton,
   Select,
+  VStack,
+  Badge,
 } from '@chakra-ui/react';
-import {
-  FiHome,
-  FiShoppingCart,
-  FiBarChart,
-  FiSettings,
-  FiLogOut,
-} from 'react-icons/fi';
-import { Link } from 'react-router-dom'; // Importar Link
+import { FiLogOut } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -36,21 +30,18 @@ import {
   Legend,
 } from 'chart.js';
 
+// Registro de componentes de chart.js
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
+// Datos ficticios
 const fakeStats = {
-  dailySales: 25,
   totalRevenue: 1524300,
   averageTicket: 12450,
   totalTransactions: 1245,
   grossMargin: 32.4,
   dailySalesData: {
-    currentMonth: [100, 200, 300, 400, 500],
-    lastMonth: [90, 180, 270, 360, 450],
-  },
-  hourlySalesData: {
-    hours: ['8 AM', '9 AM', '10 AM', '11 AM', '12 PM'],
-    sales: [50, 75, 100, 150, 200],
+    currentMonth: [100, 200, 300, 400, 500, 600, 700],
+    lastMonth: [90, 180, 270, 360, 450, 540, 630],
   },
   topProducts: [
     { name: 'Coca Cola 2L', quantity: 245 },
@@ -62,13 +53,8 @@ const fakeStats = {
 
 export const Dashboard = () => {
   const [stats, setStats] = useState(fakeStats);
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
+  // Fetch stats (mocked for now)
   useEffect(() => {
     const fetchStatsFromAPI = async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -86,24 +72,26 @@ export const Dashboard = () => {
         data: stats.dailySalesData.currentMonth,
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        tension: 0.4,
       },
       {
         label: 'Mes Anterior',
         data: stats.dailySalesData.lastMonth,
         borderColor: 'rgba(153, 102, 255, 1)',
         backgroundColor: 'rgba(153, 102, 255, 0.2)',
+        tension: 0.4,
       },
     ],
   };
 
   const barChartData = {
-    labels: stats.hourlySalesData.hours,
+    labels: stats.topProducts.map((product) => product.name),
     datasets: [
       {
-        label: 'Ventas por Hora',
-        data: stats.hourlySalesData.sales,
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
+        label: 'Unidades Vendidas',
+        data: stats.topProducts.map((product) => product.quantity),
+        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+        borderColor: 'rgba(255, 159, 64, 1)',
         borderWidth: 1,
       },
     ],
@@ -131,68 +119,19 @@ export const Dashboard = () => {
           <IconButton
             aria-label="Cerrar sesión"
             icon={<FiLogOut />}
-            onClick={handleLogout}
             colorScheme="red"
             variant="ghost"
           />
         </Flex>
       </Flex>
 
+      {/* Main Content */}
       <Flex flex="1">
-        {/* Sidebar */}
-        <Box as="nav" bg="white" w="64" py="6" px="4" borderRight="1px" borderColor="gray.200">
-          <Text fontSize="lg" fontWeight="bold" mb="6">
-            SGI
-          </Text>
-          <Box as="ul" listStyleType="none" m="0" p="0">
-            <Box as="li" mb="4">
-              <Link to="/dashboard">
-                <Flex align="center">
-                  <FiHome />
-                  <Text ml="2">Dashboard</Text>
-                </Flex>
-              </Link>
-            </Box>
-            <Box as="li" mb="4">
-              <Link to="/pos">
-                <Flex align="center">
-                  <FiShoppingCart />
-                  <Text ml="2">Punto de Venta</Text>
-                </Flex>
-              </Link>
-            </Box>
-            <Box as="li" mb="4">
-              <Link to="/top-selling-products">
-                <Flex align="center">
-                  <FiBarChart />
-                  <Text ml="2">Productos</Text>
-                </Flex>
-              </Link>
-            </Box>
-            <Box as="li" mb="4">
-              <Link to="/hourly-sales">
-                <Flex align="center">
-                  <FiSettings />
-                  <Text ml="2">Ventas</Text>
-                </Flex>
-              </Link>
-            </Box>
-            <Box as="li" mb="4">
-              <Link to="/reports">
-                <Flex align="center">
-                  <FiSettings />
-                  <Text ml="2">Reportes</Text>
-                </Flex>
-              </Link>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Main Content */}
         <Box flex="1" p="6">
           <Heading mb="6">Dashboard</Heading>
 
-          <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6} mb={6}>
+          {/* Statistics */}
+          <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap={6} mb={6}>
             <Card>
               <CardBody>
                 <Stat>
@@ -202,8 +141,36 @@ export const Dashboard = () => {
                 </Stat>
               </CardBody>
             </Card>
+            <Card>
+              <CardBody>
+                <Stat>
+                  <StatLabel>Ticket Promedio</StatLabel>
+                  <StatNumber>${stats.averageTicket.toLocaleString()}</StatNumber>
+                  <StatHelpText>↑ 5.2% vs mes anterior</StatHelpText>
+                </Stat>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <Stat>
+                  <StatLabel>Total Transacciones</StatLabel>
+                  <StatNumber>{stats.totalTransactions}</StatNumber>
+                  <StatHelpText>↓ 3.1% vs mes anterior</StatHelpText>
+                </Stat>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <Stat>
+                  <StatLabel>Margen Bruto</StatLabel>
+                  <StatNumber>{stats.grossMargin}%</StatNumber>
+                  <StatHelpText>↑ 2.1% vs mes anterior</StatHelpText>
+                </Stat>
+              </CardBody>
+            </Card>
           </Grid>
 
+          {/* Charts and Lists */}
           <Grid templateColumns={{ base: '1fr', md: '2fr 1fr' }} gap={6}>
             <Card>
               <CardBody>
@@ -216,9 +183,34 @@ export const Dashboard = () => {
             <Card>
               <CardBody>
                 <Heading size="md" mb="4">
-                  Ventas por Hora
+                  Stock Crítico
+                </Heading>
+                <VStack align="start" spacing={3}>
+                  {stats.criticalStock.map((item, index) => (
+                    <Badge key={index} colorScheme="red" variant="subtle" p="2">
+                      {item}
+                    </Badge>
+                  ))}
+                </VStack>
+              </CardBody>
+            </Card>
+          </Grid>
+
+          <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} mt={6}>
+            <Card>
+              <CardBody>
+                <Heading size="md" mb="4">
+                  Top Productos
                 </Heading>
                 <Bar data={barChartData} />
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <Heading size="md" mb="4">
+                  Ventas por Hora
+                </Heading>
+                <Text color="gray.500">Próximamente...</Text>
               </CardBody>
             </Card>
           </Grid>

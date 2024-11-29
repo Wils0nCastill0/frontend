@@ -20,12 +20,18 @@ import UsersPermissions from '../pages/UsersPermissions';
 import ProfitReport from '../pages/reports/ProfitReport';
 import TaxReport from '../pages/reports/TaxReport';
 import CustomReport from '../pages/reports/CustomReport';
-import SalesReport from '../pages/reports/SalesReport'
+import SalesReport from '../pages/reports/SalesReport';
 import InventoryReport from '../pages/reports/InventoryReport';
 import MovementsHistory from '../pages/reports/MovementsHistory';
 import DailyBalance from '../pages/reports/DailyBalance';
 import SalesByCategory from '../pages/reports/SalesByCategory';
 import SalesByProduct from '../pages/reports/SalesByProduct';
+import SystemConfiguration from '../pages/configurates/SystemConfiguration';
+import POSSettings from '../pages/configurates/POSSettings';
+import BackupSettings from '../pages/configurates/BackupSettings';
+import ClientHistory from '../pages/ClientHistory';
+import ProductDetails from '../pages/ProductDetails';
+
 
 
 // Rutas protegidas
@@ -52,15 +58,20 @@ export const AppRoutes = () => {
       <Route path="/mass-import" element={<MassImport />} />
       <Route path="/clients" element={< Clients />}/>
       <Route path="/users-permissions" element={< UsersPermissions />}/>
-      <Route path="/reports/profit" element={<ProfitReport />} />;
-      <Route path="/reports/tax-report" element={<TaxReport />} />;
-      <Route path="/custom-report" element={<CustomReport />} />;
-      <Route path="/sales-report" element={<SalesReport />} />;
-      <Route path="/inventory-report" element={<InventoryReport />} />;
-      <Route path="/movements-history" element={<MovementsHistory />} />;
-      <Route path="/daily-balance" element={<DailyBalance />} />;
-      <Route path="/sales-by-category" element={<SalesByCategory />} />;
-      <Route path="/sales-by-product" element={<SalesByProduct />} />;
+      <Route path="/reports/profit" element={<ProfitReport />} />
+      <Route path="/reports/tax-report" element={<TaxReport />} />
+      <Route path="/custom-report" element={<CustomReport />} />
+      <Route path="/sales-report" element={<SalesReport />} />
+      <Route path="/inventory-report" element={<InventoryReport />} />
+      <Route path="/movements-history" element={<MovementsHistory />} />
+      <Route path="/daily-balance" element={<DailyBalance />} />
+      <Route path="/sales-by-category" element={<SalesByCategory />} />
+      <Route path="/sales-by-product" element={<SalesByProduct />} />
+      <Route path="/system-configuration" element={<SystemConfiguration />} />
+      <Route path="/pos-settings" element={<POSSettings />} />
+      <Route path="/backup-settings" element={<BackupSettings />} />
+      <Route path="/clients/:id" element={<ClientHistory />} />
+      <Route path="/product-details" element={<ProductDetails />} />
 
 
 
