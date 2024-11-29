@@ -24,7 +24,7 @@ import {
         title: 'Ventas',
         description: 'Gestiona tus ventas y transacciones',
         icon: LayoutDashboard,
-        path: '/sales', // Ruta para redirigir
+        path: '/hourly-sales', // Ruta para redirigir
         },
         {
         title: 'Reportes',
