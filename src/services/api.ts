@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { store } from '../store';
 import { logout } from '../store/slices/authSlice';
-import { Product } from '../types';
 
 // Configuración base de la API
 const api = axios.create({
@@ -45,20 +44,6 @@ api.interceptors.response.use(
 
 // Interfaces de datos
 // En src/services/api.ts
-<<<<<<< Updated upstream
-// export interface Product {
-//   updatedAt: string;
-//   createdAt: string;
-//   isActive: boolean;
-//   id?: string; // Cambiar `id` a opcional
-//   name: string;
-//   description?: string;
-//   price: number;
-//   stock: number;
-//   category: string;
-//   sku: string;
-// }
-=======
 export interface Product {
   id: string; // Cambiar `id` a no opcional
   name: string;
@@ -68,7 +53,6 @@ export interface Product {
   category: string;
   sku: string;
 }
->>>>>>> Stashed changes
 
 export interface SaleItem {
   productId: string;
