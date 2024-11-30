@@ -19,7 +19,8 @@ import { Navbar } from '../components/layout/Navbar';
 import { useDisclosure } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import ProductModal from '../components/products/ProductModal'; // Importamos el modal
-import { Product, productsApi } from '../services/api';
+import { productsApi } from '../services/api';
+import { Product } from '../types/index';
 
 interface TransformedProduct extends Product {
   code: string;
@@ -124,7 +125,7 @@ const Inventory: React.FC = () => {
                 <Tbody>
                   {products.map((product) => (
                     <Tr key={product.code}
-                        onClick={() => navigate(`/products/${product.code}`)} // Redirige al detalle
+                        onClick={() => navigate(`/product-details/${product.id}`)} // Redirige al detalle
                         cursor="pointer"
                         _hover={{ bg: 'gray.100' }}
                         >

@@ -13,7 +13,7 @@ import { productsApi } from '../services/api';
 import { Product } from '../types';
 
 const ProductDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // ID del producto desde la URL
+  const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,7 @@ const ProductDetails: React.FC = () => {
         const response = await productsApi.getById(id as string);
         setProduct(response);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Error al cargar el producto');
+        setError(err.message || 'Error al cargar el producto');
       } finally {
         setLoading(false);
       }
@@ -71,9 +71,9 @@ const ProductDetails: React.FC = () => {
         <Text>{product?.category}</Text>
         <Text fontWeight="bold" mt={4}>Stock:</Text>
         <Text>
-          {product?.stock} 
-          <Badge colorScheme={product?.stock > 0 ? 'green' : 'red'} ml={2}>
-            {product?.stock > 0 ? 'Disponible' : 'Agotado'}
+          {product?.stock ?? 'No disponible'} 
+          <Badge colorScheme={product?.stock && product.stock > 0 ? 'green' : 'red'} ml={2}>
+            {product?.stock && product.stock > 0 ? 'Disponible' : 'Agotado'}
           </Badge>
         </Text>
         <Text fontWeight="bold" mt={4}>Precio:</Text>

@@ -24,9 +24,9 @@ export interface User {
     category: string;
     sku: string;
     minimumStock?: number;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
+    isActive?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
   }
   
   export interface CreateProductDTO {

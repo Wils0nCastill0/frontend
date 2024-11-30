@@ -23,6 +23,7 @@ import { CollapsibleSidebar } from '../components/layout/CollapsibleSidebar';
 import { Navbar } from '../components/layout/Navbar';
 import { useState } from 'react';
 
+
 export const POS = () => {
   const { cartItems, total, addToCart } = useCart(); // Hook para manejar el carrito
   const { isOpen, onOpen, onClose } = useDisclosure(); // Control del modal de pago

@@ -32,7 +32,7 @@ import ProductDetails from '../pages/ProductDetails';
 import CashClosing from '../pages/CashClosing';
 import CashOpening from '../pages/CashOpening';
 import ProductModal from '../components/products/ProductModal';
-import { Product } from '../services/api';
+import { Product } from '../types/index';
 
 
 
@@ -85,7 +85,7 @@ export const AppRoutes = () => {
       <Route path="/pos-settings" element={<POSSettings />} />
       <Route path="/backup-settings" element={<BackupSettings />} />
       <Route path="/clients/:id" element={<ClientHistory />} />
-      <Route path="/product-details" element={<ProductDetails />} />
+      <Route path="/product-details/:id" element={<ProductDetails />} />
       <Route path="/cash-closing" element={<CashClosing />} />
       <Route path= '/cash-opening' element={<CashOpening  />} />
       <Route path="/pos" element={<POS />} />
