@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -10,21 +10,27 @@ import {
   Box,
   Text,
   Input,
+  Select,
 } from '@chakra-ui/react';
 import ReceiptPreviewModal from '../../pages/ReceiptPreviewModal';
+import { useCart } from '../../hooks/useCart';
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  total: number;
+  onComplete: () => Promise<void>; // Agregar esta propiedad
 }
 
-export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, total }) => {
-  const [paymentMethod] = useState<string>('Efectivo');
+export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onComplete }) => {
+  const { cartItems } = useCart();
+  const [paymentMethod, setPaymentMethod] = useState<string>('Efectivo');
   const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
-  const change = paymentMethod === 'Efectivo' ? Math.max(receivedAmount - total, 0) : 0;
+  const subtotal = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const tax = Math.round(subtotal * 0.19);
+  const totalWithVAT = subtotal + tax;
+  const change = paymentMethod === 'Efectivo' ? Math.max(receivedAmount - totalWithVAT, 0) : 0;
 
   const receiptData = {
     storeName: 'SUPERMERCADO SAN ARMANDO',
@@ -33,22 +39,22 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tot
     receiptNumber: '1234',
     date: new Date().toLocaleString(),
     cashier: 'Juan Pérez',
-    items: [
-      { quantity: 2, name: 'Coca Cola 2L', price: 5000 },
-      { quantity: 3, name: 'Pan Molde', price: 5970 },
-      { quantity: 1, name: 'Leche 1L', price: 1290 },
-    ],
-    subtotal: 12260,
-    tax: 2329,
-    total: total,
+    items: cartItems.map(item => ({
+      quantity: item.quantity,
+      name: item.product.name,
+      price: item.product.price
+    })),
+    subtotal: subtotal,
+    tax: tax,
+    total: totalWithVAT,
     paid: receivedAmount,
     change: change,
     footerMessage: '¡Gracias por su compra!',
   };
 
-  const handleConfirmPayment = () => {
-    onClose(); // Cerrar el modal de pago
-    setIsReceiptOpen(true); // Abrir la vista previa de boleta
+  const handleConfirmPayment = async () => {
+    await onComplete();
+    setIsReceiptOpen(true); // Open receipt preview after payment
   };
 
   return (
@@ -59,7 +65,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tot
           <ModalHeader>Procesar Pago</ModalHeader>
           <ModalBody>
             <Box>
-              <Text>Total a Pagar: ${total.toLocaleString()}</Text>
+              <Text>Total a Pagar: ${totalWithVAT.toLocaleString()}</Text>
+              <Select
+                placeholder="Seleccionar método de pago"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                mb={4}
+              >
+                <option value="Efectivo">Efectivo</option>
+                <option value="Debito">Débito</option>
+                <option value="Credito">Crédito</option>
+              </Select>
               {paymentMethod === 'Efectivo' && (
                 <>
                   <Input
@@ -67,7 +83,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tot
                     value={receivedAmount}
                     onChange={(e) => setReceivedAmount(parseFloat(e.target.value) || 0)}
                   />
-                  <Text>Vuelto: ${change.toLocaleString()}</Text>
+                  <Text>Vuelto: ${Math.round(change).toLocaleString()}</Text>
                 </>
               )}
             </Box>

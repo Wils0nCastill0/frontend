@@ -18,13 +18,16 @@ export interface User {
   export interface Product {
     id: string;
     name: string;
-    description?: string;
     price: number;
     stock: number;
-    category: string;
+    category?: string;
     sku: string;
+<<<<<<< Updated upstream
     minimumStock?: number;
     isActive?: boolean;
+=======
+    isActive?: boolean; // Opcional si no siempre se envía
+>>>>>>> Stashed changes
     createdAt?: string;
     updatedAt?: string;
   }
@@ -68,8 +71,11 @@ export interface User {
   }
   
   // Cart types for POS
-  export interface CartItem extends SaleItem {
+  export interface CartItem {
+    productId: string;
     product: Product;
+    unitPrice: number;
+    quantity: number;
   }
   
   // API Response types

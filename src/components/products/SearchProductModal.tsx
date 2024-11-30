@@ -1,5 +1,5 @@
 // src/components/pos/SearchProductModal.tsx
-import  { useState } from 'react';
+import { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -17,13 +17,7 @@ import {
   Th,
   Td,
 } from '@chakra-ui/react';
-
-interface Product {
-  id: string;
-  name: string;
-  stock: number;
-  price: number;
-}
+import { Product } from '../../types/index';
 
 interface SearchProductModalProps {
   isOpen: boolean;
@@ -36,14 +30,16 @@ const SearchProductModal: React.FC<SearchProductModalProps> = ({
   isOpen,
   onClose,
   onSelectProduct,
-  products,
+  products = [],
 }) => {
+  // Estado para la búsqueda
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Filtro de productos basado en la búsqueda
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.id.toLowerCase().includes(searchQuery.toLowerCase())
+      product.id.includes(searchQuery)
   );
 
   return (
@@ -78,7 +74,7 @@ const SearchProductModal: React.FC<SearchProductModalProps> = ({
                   <Td>{product.id}</Td>
                   <Td>{product.name}</Td>
                   <Td isNumeric>{product.stock}</Td>
-                  <Td isNumeric>${product.price.toLocaleString()}</Td>
+                  <Td isNumeric>${Math.round(product.price)}</Td>
                 </Tr>
               ))}
             </Tbody>

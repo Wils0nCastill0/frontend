@@ -45,6 +45,7 @@ api.interceptors.response.use(
 
 // Interfaces de datos
 // En src/services/api.ts
+<<<<<<< Updated upstream
 // export interface Product {
 //   updatedAt: string;
 //   createdAt: string;
@@ -57,7 +58,31 @@ api.interceptors.response.use(
 //   category: string;
 //   sku: string;
 // }
+=======
+export interface Product {
+  id: string; // Cambiar `id` a no opcional
+  name: string;
+  description?: string;
+  price: number;
+  stock: number;
+  category: string;
+  sku: string;
+}
+>>>>>>> Stashed changes
 
+export interface SaleItem {
+  productId: string;
+  quantity: number;
+  price: number;
+}
+
+export interface CreateSaleRequest {
+  items: Array<{
+    productId: string;
+    quantity: number;
+  }>;
+  notes?: string;
+}
 
 export interface Sale {
   id: string;
@@ -142,17 +167,22 @@ export const authApi = {
 // Servicios de productos
 export const productsApi = {
   getAll: async (): Promise<Product[]> => {
-    try {
-      const response = await api.get<{ data: { products: Product[] } }>('/products');
-      return response.data.data.products;
-    } catch (error) {
-      console.error('Error al obtener productos:', error);
-      throw new Error('Error al cargar productos');
+    const response = await api.get('/products');
+    
+    if (!response.data?.data?.products || !Array.isArray(response.data.data.products)) {
+      throw new Error('Los productos no están en formato de array');
     }
+    
+    return response.data.data.products;
   },
 
   getById: async (id: string): Promise<Product> => {
     const response = await api.get<{ data: { product: Product } }>(`/products/${id}`);
+    return response.data.data.product;
+  },
+
+  getBySKU: async (sku: string): Promise<Product> => {
+    const response = await api.get<{ data: { product: Product } }>(`/products/sku/${sku}`);
     return response.data.data.product;
   },
 
@@ -162,35 +192,28 @@ export const productsApi = {
   },
 
   update: async (id: string, productData: Product): Promise<Product> => {
-    const response = await api.put<{ data: { product: Product } }>(
-      `/products/${id}`,
-      productData
-    );
+    const response = await api.put<{ data: { product: Product } }>(`/products/${id}`, productData);
     return response.data.data.product;
   },
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/products/${id}`);
-  },
-
-  updateStock: async (
-    id: string,
-    quantity: number,
-    operation: 'add' | 'subtract'
-  ): Promise<Product> => {
-    const response = await api.patch<{ data: { product: Product } }>(
-      `/products/${id}/stock`,
-      { quantity, operation }
-    );
-    return response.data.data.product;
-  },
+  }
 };
 
 // Servicios de ventas
 export const salesApi = {
-  create: async (saleData: Sale): Promise<Sale> => {
-    const response = await api.post<{ data: Sale }>('/sales', saleData);
-    return response.data.data;
+  create: async (saleData: CreateSaleRequest): Promise<Sale> => {
+    try {
+      const response = await api.post<{ data: { sale: Sale } }>('/sales', saleData);
+      return response.data.data.sale;
+    } catch (error) {
+      console.error('Error creating sale:', error);
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        throw new Error(error.response.data.message || 'Error en los datos de la venta');
+      }
+      throw new Error('Error al crear la venta');
+    }
   },
 
   getAll: async (): Promise<Sale[]> => {
