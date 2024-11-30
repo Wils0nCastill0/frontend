@@ -33,6 +33,7 @@ import CashClosing from '../pages/cajera/CashClosing';
 import CashOpening from '../pages/cajera/CashOpening';
 import ProductModal from '../components/products/ProductModal';
 import { Product } from '../types/index';
+import HomeCajera from '../pages/cajera/HomeCajera'
 
 
 
@@ -90,6 +91,7 @@ export const AppRoutes = () => {
       <Route path="/cash-closing" element={<CashClosing />} />
       <Route path= '/cash-opening' element={<CashOpening  />} />
       <Route path="/pos" element={<POS />} />
+      <Route path="/home-cajera" element={<HomeCajera />} />
 
 
 

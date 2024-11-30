@@ -13,10 +13,18 @@ import {
     import { useDisclosure } from '@chakra-ui/react';
     import { LayoutDashboard, FileText, Users, Settings, Plus, Clipboard } from 'lucide-react';
     import { useNavigate } from 'react-router-dom'; // Importa el hook de navegación
+    import { useEffect, useState } from 'react';
 
     const Dashboard: React.FC = () => {
     const { isOpen, onToggle } = useDisclosure();
     const navigate = useNavigate(); // Inicializa el hook
+    const [userName, setUserName] = useState('');
+
+    // Obtener el nombre del usuario de localStorage
+    useEffect(() => {
+        const storedName = localStorage.getItem('userName');
+        setUserName(storedName || 'Usuario'); // Fallback a "Usuario" si no hay nombre
+    }, []); 
 
     // Datos ficticios para las tarjetas
     const sections = [
@@ -75,11 +83,11 @@ import {
         {/* Contenido principal */}
         <Box flex="1" ml={isOpen ? '240px' : '60px'} transition="margin-left 0.3s">
             {/* Barra superior */}
-            <Navbar onMenuClick={onToggle} userName={''} />
+            <Navbar onMenuClick={onToggle} userName={userName} />
             <Box p={6}>
             {/* Bienvenida */}
             <Box mb={8}>
-                <Heading size="lg" mb={2}>Bienvenido, Usuario de Prueba</Heading>
+                <Heading size="lg" mb={2}>Bienvenido, {userName}</Heading>
                 <Text color="gray.500">¿Qué te gustaría hacer hoy?</Text>
             </Box>
 

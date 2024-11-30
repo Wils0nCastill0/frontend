@@ -22,7 +22,7 @@ import {
     userName: string;
   }
   
-  export const Navbar = ({ onMenuClick, userName }: NavbarProps) => {
+  export const Navbar = ({ onMenuClick }: NavbarProps) => {
     const { colorMode, toggleColorMode } = useColorMode();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -64,9 +64,6 @@ import {
               aria-label="toggle theme"
             />
             
-            <Flex align="center">
-              <Text mr="4">{userName}</Text>
-            </Flex>
   
             <Menu>
               <MenuButton

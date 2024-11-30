@@ -33,8 +33,10 @@ export const Login = () => {
 
       const { user, token } = response;
 
-      // Guardar el token en localStorage
+      // Guardar el token, rol y usuario en localStorage
       localStorage.setItem('token', token);
+      localStorage.setItem('role', user.role);
+      localStorage.setItem('userName', user.name);
 
       // Dispatch para éxito del login
       dispatch(
@@ -44,8 +46,13 @@ export const Login = () => {
         })
       );
 
-      // Redirigir al home
-      navigate('/home');
+      // Redirigir según el rol del usuario
+      if (user.role === 'admin') {
+        navigate('/home');
+      } else {
+        navigate('/home-cajera');
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // Manejo de errores
       const errorMessage =
