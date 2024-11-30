@@ -35,10 +35,10 @@ import {
     
     const NavItems: NavItem[] = [
         { name: 'Home', icon: Home, path: '/home' },
-        { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+        { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', roles: ['admin'] },
         { name: 'POS', icon: ShoppingCart, path: '/pos' },
         { name: 'Inventario', icon: Package, path: '/inventory' },
-        { name: 'Reportes', icon: FileText, path: '/reports' },
+        { name: 'Reportes', icon: FileText, path: '/reports', roles: ['admin'] },
         { name: 'Clientes', icon: Users, path: '/clients' },
         { name: 'Usuarios', icon: Users, path: '/users-permissions', roles: ['admin'] },
         { name: 'Configuración', icon: Settings, path: '/system-configuration', roles: ['admin'] },

@@ -29,8 +29,8 @@ import POSSettings from '../pages/configurates/POSSettings';
 import BackupSettings from '../pages/configurates/BackupSettings';
 import ClientHistory from '../pages/ClientHistory';
 import ProductDetails from '../pages/ProductDetails';
-import CashClosing from '../pages/CashClosing';
-import CashOpening from '../pages/CashOpening';
+import CashClosing from '../pages/cajera/CashClosing';
+import CashOpening from '../pages/cajera/CashOpening';
 import ProductModal from '../components/products/ProductModal';
 import { Product } from '../types/index';
 
@@ -61,6 +61,7 @@ export const AppRoutes = () => {
     <ProductModal
       isOpen={true} // Aquí decides si el modal estará abierto inicialmente
       onClose={() => console.log('Cerrar modal')} // Una función para manejar el cierre
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onProductCreated={function (_product: Product): void {
         throw new Error('Function not implemented.');
       } }    />
