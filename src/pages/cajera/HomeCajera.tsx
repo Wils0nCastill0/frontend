@@ -10,7 +10,7 @@ import {
     import { CollapsibleSidebar } from '../../components/layout/CollapsibleSidebar';
     import { Navbar } from '../../components/layout/Navbar';
     import { useDisclosure } from '@chakra-ui/react';
-    import { Users, Settings, ShoppingCart } from 'lucide-react';
+    import { Settings, ShoppingCart, Package } from 'lucide-react';
     import { useNavigate } from 'react-router-dom';
     import { useEffect, useState } from 'react'; // Importa React hooks
     
@@ -37,9 +37,9 @@ import {
             path: '/pos',
         },
         {
-            title: 'Usuarios',
-            description: 'Administra usuarios y permisos',
-            icon: Users,
+            title: 'Inventario',
+            description: 'Gestionar productos',
+            icon: Package,
             path: '/users-permissions',
         },
         {
