@@ -21,9 +21,16 @@ import {
     const navigate = useNavigate();
 
     const handleOpenCash = () => {
+        // Obtener la fecha y hora actual
+        const currentDateTime = new Date().toISOString();
+    
+        // Guardar la fecha y hora en localStorage
+        localStorage.setItem('cashOpeningDateTime', currentDateTime);
+    
+        // Cerrar el modal y redirigir a la página de POS
         onClose();
-        navigate('/cash-opening'); // Redirige a la página de apertura de caja
-    };
+        navigate('/pos');
+        };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} isCentered>

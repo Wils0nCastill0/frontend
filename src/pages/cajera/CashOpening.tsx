@@ -6,10 +6,6 @@ import {
   Flex,
   Heading,
   Input,
-  Table,
-  Tbody,
-  Td,
-  Tr,
   Text,
   HStack,
   useToast,
@@ -17,19 +13,8 @@ import {
 
 const CashOpening: React.FC = () => {
   const [initialAmount, setInitialAmount] = useState(100000);
-  const [denominations, setDenominations] = useState({
-    "20000": 2,
-    "10000": 2,
-    "5000": 1,
-  });
   const toast = useToast();
 
-  const handleDenominationChange = (value: string, denomination: string) => {
-    setDenominations((prev) => ({
-      ...prev,
-      [denomination]: parseInt(value) || 0,
-    }));
-  };
 
   const handleOpenCash = () => {
     // Aquí se integraría la API para enviar los datos de apertura de caja
@@ -42,21 +27,6 @@ const CashOpening: React.FC = () => {
     });
   };
 
-  const denominationRows = Object.entries(denominations).map(
-    ([denomination, quantity]) => (
-      <Tr key={denomination}>
-        <Td>${parseInt(denomination).toLocaleString()} x</Td>
-        <Td>
-          <Input
-            type="number"
-            value={quantity}
-            onChange={(e) => handleDenominationChange(e.target.value, denomination)}
-          />
-        </Td>
-        <Td isNumeric>${(parseInt(denomination) * quantity).toLocaleString()}</Td>
-      </Tr>
-    )
-  );
 
   return (
     <Flex direction="column" align="center" p={6} bg="gray.50" minH="100vh">
@@ -94,16 +64,6 @@ const CashOpening: React.FC = () => {
             onChange={(e) => setInitialAmount(parseInt(e.target.value) || 0)}
             mb={4}
           />
-        </Box>
-
-        {/* Desglose */}
-        <Box mb={6}>
-          <Text fontWeight="bold" mb={4}>
-            Desglose de billetes y monedas
-          </Text>
-          <Table variant="simple" size="sm">
-            <Tbody>{denominationRows}</Tbody>
-          </Table>
         </Box>
 
         {/* Observaciones */}
